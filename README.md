@@ -3,23 +3,21 @@
 ```python
 import machine_learning as ml
 
-dataset = 'dataset'  # SKLearn OpenML dataset
-dataset = 'datasets\\dataset.csv'  # Dataset directory
-ml.main('dataset', model_type='LogisticRegression')
+config = PRML.Config(ROOT_DIR)
+ml = PRML.MachineLearning(config, 'fashion-mnist_test.csv')
+ml.main()
 ```
---Callable Functions--
+-- Callable Functions --
 ```python
 raw_dataset = ml.loadDataset(dataset_name)
 
-processed_dataset = ml.processData(raw_dataset)
+dataset, X, y = ml.processData(raw_dataset)
 
-dataset = ml.extractFeatures(processed_dataset)
+PRML.saveDataset(dataset)
 
-ml.saveDataset(dataset)
+X_train, X_test, y_train, y_test = ml.splitDataset(X, y)
 
-datasets = ml.splitDataset(dataset)
+model = ml.trainModel(model_type, X_train, y_train)
 
-model = ml.trainModel(model_type, datasets)
-
-ml.resultAnalysis(model, datasets, dataset)
+ml.resultAnalysis(X, X_test, y_test)
 ```

@@ -76,8 +76,9 @@ class MachineLearning(object):
 
         self.models = None
 
-    def processData(self):
-        self.dataset = self.raw_dataset
+    def processData(self, dataset=None) -> tuple:
+        self.dataset = self.raw_dataset if dataset is None else dataset
+
         if isinstance(self.dataset, DataFrame):
             self.X, self.y = self.dataset.drop(self.config.target, axis=1), self.dataset[self.config.target]
             print(self.dataset.axes)
@@ -94,26 +95,40 @@ class MachineLearning(object):
             print(self.X.shape)
 
         logging.info('Data processed')
+        return self.dataset, self.X, self.y
 
-    def extractFeatures(self) -> None:
+    def extractFeatures(self, dataset=None) -> Any:
+        self.dataset = self.dataset if dataset is None else dataset
         if isinstance(self.dataset, DataFrame):
             pass
         else:
             pass
         logging.info('Features extracted')
+        return self.dataset
 
-    def splitDataset(self):
+    def splitDataset(self, x=None, y=None) -> tuple:
+        self.X = self.X if x is None else x
+        self.y = self.y if y is None else y
+
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y,
                                                                                 train_size=self.config.split_ratio,
                                                                                 random_state=self.config.random_seed)
         logging.info('Dataset split')
+        return self.X_train, self.X_test, self.y_train, self.y_test
 
-    def trainModel(self):
+    def trainModel(self, x_train=None, y_train=None):
+        self.X_train = self.X_train if x_train is None else x_train
+        self.y_train = self.y_train if y_train is None else y_train
+
         if self.config.model_type == 'LogisticRegression':
             self.models = LogisticRegression(solver='lbfgs', max_iter=100)
             self.models.fit(self.X_train, self.y_train)
 
-    def resultAnalysis(self):
+    def resultAnalysis(self, x=None, x_test=None, y_test=None):
+        self.X = self.X if x is None else x
+        self.X_test = self.X_test if x_test is None else x_test
+        self.y_test = self.y_test if y_test is None else y_test
+
         score = self.models.score(self.X_test, self.y_test)
         print("Score - %.2f%s" % (score * 100, '%'))
 
@@ -202,10 +217,10 @@ class MachineLearning(object):
 
         self.splitDataset()
 
-        # self.trainModel()
-        # self.resultAnalysis()
+        self.trainModel()
+        self.resultAnalysis()
 
-        results, names = self.train()
-        self.results(results, names)
+        # results, names = self.train()
+        # self.results(results, names)
 
         logging.info('Competed')

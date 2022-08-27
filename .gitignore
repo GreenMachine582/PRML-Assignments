@@ -1,9 +1,9 @@
 # Miscellaneous
-/PRML/log.txt
+log.txt
 .idea
 venv
 /venv
-/PRML/datasets
+/datasets/*
 /PRML/VERSION
 /PRML/__pycache__/
 
