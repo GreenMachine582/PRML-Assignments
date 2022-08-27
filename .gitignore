@@ -1,9 +1,11 @@
 # Miscellaneous
+/PRML/log.txt
 .idea
 venv
 /venv
-/src/VERSION
-/src/__pycache__/
+/PRML/datasets
+/PRML/VERSION
+/PRML/__pycache__/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
