@@ -17,7 +17,7 @@ PRML.saveDataset(dataset)
 
 X_train, X_test, y_train, y_test = ml.splitDataset(X, y)
 
-model = ml.trainModel(model_type, X_train, y_train)
+model = ml.trainModel(X_train, y_train)
 
 ml.resultAnalysis(X, X_test, y_test)
 ```
