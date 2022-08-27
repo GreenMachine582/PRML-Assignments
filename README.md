@@ -3,7 +3,9 @@
 ```python
 import machine_learning as ml
 
-ml.main()
+dataset = 'dataset'  # SKLearn OpenML dataset
+dataset = 'datasets\\dataset'  # Dataset directory
+ml.main('dataset', model_type='LogisticRegression')
 ```
 --Callable Functions--
 ```python
