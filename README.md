@@ -1,7 +1,7 @@
 # PRML-MachineLearning
 
 ```python
-import machine_learning as ml
+import PRML
 
 config = PRML.Config(ROOT_DIR)
 ml = PRML.MachineLearning(config, 'fashion-mnist_test.csv')
