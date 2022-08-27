@@ -1,18 +1,23 @@
 # PRML-MachineLearning
 
 ```python
-import machine_learning
-raw_dataset = loadDataset(dataset_name)
+import machine_learning as ml
 
-processed_dataset = processData(raw_dataset)
+ml.main()
+```
+--Callable Functions--
+```python
+raw_dataset = ml.loadDataset(dataset_name)
 
-dataset = extractFeatures(processed_dataset)
+processed_dataset = ml.processData(raw_dataset)
 
-saveDataset(dataset)
+dataset = ml.extractFeatures(processed_dataset)
 
-datasets = splitDataset(dataset)
+ml.saveDataset(dataset)
 
-model = trainModel(model_type, datasets)
+datasets = ml.splitDataset(dataset)
 
-resultAnalysis(model, datasets, dataset)
+model = ml.trainModel(model_type, datasets)
+
+ml.resultAnalysis(model, datasets, dataset)
 ```
