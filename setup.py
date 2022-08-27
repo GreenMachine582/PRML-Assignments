@@ -34,7 +34,7 @@ setup(
     name='PRML-MachineLearning',
     version=version,
     author='Matthew Johnson, Leigh Hill',
-    author_email='greenchicken1902@gmail.com, LeighHillx@gmail.com',
+    author_email='greenchicken1902@gmail.com, u3215513@uni.canberra.edu.au',
     maintainer='Matthew Johnson',
     maintainer_email='greenchicken1902@gmail.com',
     description='Coded responses for each assignment question',
