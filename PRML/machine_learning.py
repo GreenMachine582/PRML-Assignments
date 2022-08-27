@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,17 +22,17 @@ def loadDataset(dataset_name: str, seperator: str = ';') -> Any:
     :return:
         - dataset - Any
     """
-    try:
-        logging.info('Loading dataset')
-        if '.csv' in dataset_name:
-            dataset = pd.read_csv(dataset_name, sep=seperator)
-            logging.info('Loaded dataset')
-        else:
-            dataset = fetch_openml(dataset_name, version=1)
-            logging.info('Fetched dataset')
-        return dataset
-    except Exception as e:
-        logging.error(e)
+    logging.info('Loading dataset')
+    if '.csv' in dataset_name:
+        if not os.path.isfile(dataset_name):
+            logging.error(f"Missing file {dataset_name}")
+            return
+        dataset = pd.read_csv(dataset_name, sep=seperator)
+        logging.info('Loaded dataset')
+    else:
+        dataset = fetch_openml(dataset_name, version=1)
+        logging.info('Fetched dataset')
+    return dataset
 
 
 def saveDataset(dataset_name: str, dataset: Any) -> None:
@@ -144,6 +145,8 @@ def resultAnalysis(model, datasets, dataset):
 
 def main(dataset_name, model_type: str = 'LogisticRegression'):
     raw_dataset = loadDataset(dataset_name)
+    if raw_dataset is None:
+        return
     processed_dataset = processData(raw_dataset)
     dataset = extractFeatures(processed_dataset)
 

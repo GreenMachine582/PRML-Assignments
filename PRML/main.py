@@ -22,7 +22,7 @@ def quit_program() -> None:
     :return:
         - None
     """
-    logging.info("Exiting program --- %s seconds ---" % round(time() - START_TIME, 2))
+    logging.info("Exiting program - %s seconds -" % round(time() - START_TIME, 2))
     sys.exit(0)
 
 
@@ -46,8 +46,8 @@ def main() -> None:
             elif choice == 1:
                 pass
             elif choice == 2:
-                machine_learning.main('Fashion-MNIST')
-                #machine_learning.main(f"{ROOT_DIR}\\datasets\\fashion-mnist_test.csv")
+                # machine_learning.main('Fashion-MNIST')
+                machine_learning.main(f"{ROOT_DIR}\\datasets\\fashion-mnist_test.csv")
         except ValueError:
             print("Please enter a valid choice!")
 
