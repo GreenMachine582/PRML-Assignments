@@ -1,7 +1,11 @@
 from __future__ import annotations
 
-import numpy as np
+import logging
+
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
 
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
@@ -9,17 +13,30 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix, classification_report
 
 
-def saveDataset(dataset):
+def loadDataset(dataset_name: str, seperator: str = ';') -> Any:
+    """
+    Loads a dataset from a csv file or fetches from openml.
+    :param dataset_name: str
+    :param seperator: str
+    :return:
+        - dataset - Any
+    """
+    try:
+        logging.info('Loading dataset')
+        if '.csv' in dataset_name:
+            dataset = pd.read_csv(dataset_name, sep=seperator)
+            logging.info('Loaded dataset')
+        else:
+            dataset = fetch_openml(dataset_name, version=1)
+            logging.info('Fetched dataset')
+        return dataset
+    except Exception as e:
+        logging.error(e)
+
+
+def saveDataset(dataset_name: str, dataset: Any) -> None:
     # Save the dataset into a .csv file for easy access in future and reviewing.
     pass
-
-
-def loadDataset(dataset_name: str):
-    if '\\' not in dataset_name:
-        return fetch_openml(dataset_name, version=1)
-    else:
-        # read dataset from directory
-        return None
 
 
 def processData(dataset):
@@ -62,7 +79,7 @@ def splitDataset(dataset):
 def trainModel(model_type, datasets):
     X_train, y_train = datasets[0], datasets[2]
     model = None
-    if model_type is 'LogisticRegression':
+    if model_type == 'LogisticRegression':
         model = LogisticRegression(solver='lbfgs', max_iter=100)
         model.fit(X_train, y_train)
     return model
@@ -130,7 +147,7 @@ def main(dataset_name, model_type: str = 'LogisticRegression'):
     processed_dataset = processData(raw_dataset)
     dataset = extractFeatures(processed_dataset)
 
-    saveDataset(dataset)
+    saveDataset(dataset_name, dataset)
 
     datasets = splitDataset(dataset)
 
