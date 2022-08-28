@@ -49,12 +49,12 @@ def main() -> None:
                 return
             elif choice == 1:
                 config.target = 'label'
-                ml = PRML.MachineLearning(config, 'fashion-mnist_test.csv')
+                ml = PRML.MachineLearning(config, f'{ROOT_DIR}\\datasets\\fashion-mnist_test.csv')
                 ml.main()
                 return
             elif choice == 2:
                 config.target = 'label'
-                ml = PRML.MachineLearning(config, 'fashion-mnist_train.csv')
+                ml = PRML.MachineLearning(config, f'{ROOT_DIR}\\datasets\\fashion-mnist_train.csv')
                 ml.main()
                 return
             elif choice == 3:
@@ -64,7 +64,7 @@ def main() -> None:
             elif choice == 4:
                 config.target = 'class'
                 config.names = ['sepal-length', 'sepal-width', 'petal-length', 'petal-width', 'class']
-                ml = PRML.MachineLearning(config, 'iris.data.csv')
+                ml = PRML.MachineLearning(config, f'{ROOT_DIR}\\datasets\\iris.data.csv')
                 ml.main()
                 return
         except ValueError:

@@ -5,7 +5,6 @@ class Config(object):
 
     def __init__(self, _dir):
         self.dir = _dir
-        self.dataset_dir = f"{_dir}\\datasets\\"
 
         self.split_ratio = 0.8
         self.random_seed = 0

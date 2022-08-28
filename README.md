@@ -9,15 +9,20 @@ ml.main()
 ```
 -- Callable Functions --
 ```python
-raw_dataset = ml.loadDataset(dataset_name)
+dataset = ml.loadDataset(dataset_name)
+ml.saveDataset(dataset_name, dataset)
 
-dataset, X, y = ml.processData(raw_dataset)
+dataset, X, y = ml.processData(dataset)
+dataset, X, y = ml.extractFeatures(dataset)
 
 PRML.saveDataset(dataset)
 
 X_train, X_test, y_train, y_test = ml.splitDataset(X, y)
 
-model = ml.trainModel(X_train, y_train)
+models = ml.trainModel(X_train, y_train)
 
-ml.resultAnalysis(X, X_test, y_test)
+ml.resultAnalysis(models, X, X_test, y_test)
+
+ml.saveModel(model_dir, model)
+ml.loadModel(model_dir)
 ```
