@@ -4,6 +4,7 @@ log.txt
 venv
 /venv
 /datasets/*
+/models/*
 /PRML/VERSION
 /PRML/__pycache__/
 
