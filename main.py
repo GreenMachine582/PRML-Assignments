@@ -39,32 +39,25 @@ def main() -> None:
         try:
             print("""
             0 - Quit
-            1 - 'fashion-mnist_test.csv'
-            2 - 'fashion-mnist_train.csv'
-            3 - 'Fashion-MNIST'
-            4 - 'iris.data.csv'
+            1 - 'Fashion-MNIST'
+            2 - 'Fashion-MNIST.csv'
+            3 - 'iris.data.csv'
             """)
             choice = int(input("Which question number: "))
             if choice == 0:
                 return
             elif choice == 1:
-                config.target = 'label'
-                ml = PRML.MachineLearning(config, f'{ROOT_DIR}\\datasets\\fashion-mnist_test.csv')
-                ml.main()
-                return
-            elif choice == 2:
-                config.target = 'label'
-                ml = PRML.MachineLearning(config, f'{ROOT_DIR}\\datasets\\fashion-mnist_train.csv')
-                ml.main()
-                return
-            elif choice == 3:
                 ml = PRML.MachineLearning(config, 'Fashion-MNIST')
                 ml.main()
                 return
-            elif choice == 4:
+            elif choice == 2:
+                ml = PRML.MachineLearning(config, 'Fashion-MNIST.csv')
+                ml.main()
+                return
+            elif choice == 3:
                 config.target = 'class'
                 config.names = ['sepal-length', 'sepal-width', 'petal-length', 'petal-width', 'class']
-                ml = PRML.MachineLearning(config, f'{ROOT_DIR}\\datasets\\iris.data.csv')
+                ml = PRML.MachineLearning(config, 'iris.data.csv')
                 ml.main()
                 return
         except ValueError:
