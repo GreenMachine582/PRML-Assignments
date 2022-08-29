@@ -12,7 +12,8 @@ import seaborn as sns
 
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split, KFold, cross_val_score
-from sklearn.metrics import confusion_matrix, classification_report, accuracy_score, plot_confusion_matrix
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score, ConfusionMatrixDisplay,\
+    mean_squared_error, mean_absolute_error
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -27,7 +28,7 @@ class MachineLearning(object):
         self.dataset_name = dataset_name
         self.names = names
 
-        self.raw_dataset = None
+        self.raw_dataset = self.loadDataset(dataset_name)
 
         self.X = None
         self.y = None
@@ -40,61 +41,112 @@ class MachineLearning(object):
 
         self.model = None
 
-    def loadDataset(self, dataset_name: str) -> Any:
+    def bunchToDataframe(self, fetched_dataset: Bunch) -> DataFrame:
         """
-        Loads a dataset from a CSV file or fetches from OpenML and converts the dataset
-        to a Pandas DataFrame.
-        :param dataset_name: str
+        Creates a pandas DataFrame dataset from SKLearn Bunch object.
+        :param fetched_dataset: Bunch
         :return:
-            - dataset - Any
+            - dataset - DataFrame
         """
-        logging.info(f"Loading dataset")
-        if '.csv' in dataset_name:
-            if not os.path.isfile(dataset_name):
-                logging.error(f"Missing file")
-                return
-            dataset = pd.read_csv(dataset_name, names=self.config.names, sep=self.config.seperator)
-            logging.info('Loaded dataset')
-        else:
-            dataset = fetch_openml(dataset_name, version=1)
-            logging.info('Fetched dataset')
+        dataset = pd.DataFrame(data=fetched_dataset['data'], columns=fetched_dataset['feature_names'])
+        dataset[self.config.target] = fetched_dataset['target']
         return dataset
 
-    def saveDataset(self, dataset_name: str, dataset: Any) -> None:
+    def loadDataset(self, dataset_name: str) -> DataFrame:
         """
-        Saves the dataset in a csv file using a Pandas method.
+        Checks and loads a locally stored .csv dataset as a pandas DataFrame.
+        If dataset was not located, it will attempt to fetch from OpenML, and convert
+        the dataset to a DataFrame object.
         :param dataset_name: str
-        :param dataset: Any
+        :return:
+            - dataset - DataFrame
+        """
+        logging.info(f"Loading dataset")
+
+        if '.csv' not in dataset_name:
+            if not os.path.isfile(f'{self.config.dataset_dir}{dataset_name}.csv'):
+                fetched_dataset = fetch_openml(dataset_name, version=1)
+                logging.info('Fetched dataset')
+                try:
+                    dataset = self.bunchToDataframe(fetched_dataset)
+                    self.config.names = fetched_dataset['feature_names'] + [self.config.target]
+                    logging.info('Converted dataset to DataFrame')
+                    dataset_name = dataset_name + '.csv'
+                    self.saveDataset(dataset_name, dataset)
+                except Exception as e:
+                    logging.warning("Couldn't fetch dataset", e)
+                    return
+
+        if not os.path.isfile(self.config.dataset_dir + dataset_name):
+            logging.error(f"Missing file {self.config.dataset_dir}{dataset_name}")
+            return
+        dataset = pd.read_csv(self.config.dataset_dir + dataset_name, names=self.config.names,
+                              sep=self.config.seperator)
+        logging.info('Loaded dataset')
+        return dataset
+
+    def saveDataset(self, dataset_name: str, dataset: DataFrame) -> None:
+        """
+        Saves the dataset in a .csv file using a Pandas method.
+        :param dataset_name: str
+        :param dataset: DataFrame
         :return:
             - None
         """
-        dataset.to_csv(dataset_name, sep=self.config.seperator, index=False)
-        logging.info(f"Dataset saves {dataset_name}")
+        dataset.to_csv(self.config.dataset_dir + dataset_name, sep=self.config.seperator, index=False)
+        logging.info(f"Dataset saved {self.config.dataset_dir + dataset_name}")
 
-    def processData(self, dataset: Any) -> tuple:
-        if isinstance(dataset, DataFrame):
-            X, y = dataset.drop(self.config.target, axis=1), dataset[self.config.target]
+    def processData(self, dataset: DataFrame) -> tuple:
+        """
+
+        :param dataset: DataFrame
+        :return:
+            - dataset, X, y - tuple[DataFrame]
+        """
+        plt.figure(figsize=(10, 3))
+        for i in range(5):
+            instance_data = dataset.iloc[i]
+            image = instance_data[:-1].values
+            label = instance_data[-1]
+            plt.subplot(1, 5, i + 1)
+            plt.imshow(np.array(image).reshape(28, 28), cmap=plt.cm.gray)
+            plt.title('Training: %i\n' % int(label), fontsize=15)
+        plt.plot()
+        logging.info('Example instances')
+
+        plt.figure()
+        dataset[self.config.target].value_counts().plot(kind='bar')
+
+        plt.figure(figsize=(15, 3))
+        for i in range(10):
+            for idx in range(dataset.shape[0]):
+                instance_data = dataset.iloc[idx]
+                label = instance_data[-1]
+                if label == i:
+                    image = instance_data[:-1].values
+                    plt.subplot(1, 10, i + 1)
+                    plt.imshow(np.array(image).reshape(28, 28), cmap=plt.cm.gray)
+                    plt.title('Label: %i\n' % int(i), fontsize=15)
+                    break
+        plt.plot()
+
+        plt.show()
+
+        X, y = dataset.drop(self.config.target, axis=1), dataset[self.config.target]
+
+        if self.config.show_small_responses:
             print(dataset.axes)
             print(dataset.head())
             print(dataset.dtypes)
-        else:
-            X, y = dataset.data, dataset.target
-            print(dataset.keys())
-            print(dataset.target[:5])
-            try:
-                print(np.array(X.iloc[9, :]).reshape(28, 28))
-            except AttributeError:
-                print(np.array(X[9, :]).reshape(28, 28))
-            print(X.shape)
 
+            print(np.array(X.iloc[9][:-1].values.reshape(28, 28)))
+        print('X shape:', X.shape)
+        quit()
         logging.info('Data processed')
         return dataset, X, y
 
-    def extractFeatures(self, dataset: Any) -> tuple:
-        if isinstance(dataset, DataFrame):
-            X, y = dataset.drop(self.config.target, axis=1), dataset[self.config.target]
-        else:
-            X, y = dataset.data, dataset.target
+    def extractFeatures(self, dataset: DataFrame) -> tuple:
+        X, y = dataset.drop(self.config.target, axis=1), dataset[self.config.target]
 
         logging.info('Features extracted')
         return dataset, X, y
@@ -115,27 +167,24 @@ class MachineLearning(object):
     @staticmethod
     def resultAnalysis(model, x, x_test, y_test):
         score = model.score(x_test, y_test)
-        print("Score - %.2f%s" % (score * 100, '%'))
+        print("Score - %.4f%s" % (score * 100, '%'))
 
         y_pred = model.predict(x_test)
 
-        print(confusion_matrix(y_test, y_pred))
+        cm = confusion_matrix(y_test, y_pred)
 
-        plot_confusion_matrix(model, x_test, y_test)
-        plt.show()
+        ConfusionMatrixDisplay(cm, display_labels=model.classes_).plot()
 
-        plt.figure(figsize=(10, 2))
+        plt.figure(figsize=(10, 3))
         for i in range(5):
             prediction = model.predict(x)[i]
             plt.subplot(1, 5, i + 1)
             plt.axis("off")
-            try:
-                image = x.iloc[i, :]
-            except AttributeError:
-                image = x[i, :]
+            image = x.iloc[[i]].values[0]
             plt.imshow(np.array(image).reshape(28, 28), cmap=plt.cm.gray_r, interpolation='nearest')
             plt.title('Prediction: %i' % int(prediction))
-        plt.show()
+        plt.plot()
+        logging.info('Predicted results')
 
         index = 0
         misclassifiedIndexes = []
@@ -144,67 +193,53 @@ class MachineLearning(object):
                 misclassifiedIndexes.append(index)
             index += 1
 
-        plt.figure(figsize=(20, 3))
+        plt.figure(figsize=(10, 3))
         for plotIndex, badIndex in enumerate(misclassifiedIndexes[0:5]):
             plt.subplot(1, 5, plotIndex + 1)
             plt.axis("off")
-            try:
-                image = x_test.iloc[badIndex, :]
-            except AttributeError:
-                image = x_test[badIndex, :]
+            image = x_test.iloc[[badIndex]].values[0]
             plt.imshow(np.array(image).reshape(28, 28),
                        cmap=plt.cm.gray, interpolation='nearest')
-            plt.title('Predicted: {}, Actual: {}'.format(y_pred[badIndex],
-                                                         np.array(y_test)[badIndex]),
-                      fontsize=20)
+            plt.title('Predicted: {}, Actual: {}'.format(y_pred[badIndex], np.array(y_test)[badIndex]),
+                      fontsize=15)
+        plt.plot()
+        logging.info('Misclassified results')
 
-    # def train(self):
-    #     logging.info('Training models')
-    #     self.models = [('LR', LogisticRegression(solver='liblinear', multi_class='ovr')),
-    #                    ('KNN', KNeighborsClassifier()), ('CART', DecisionTreeClassifier())]
-    #     # evaluate each model in turn
-    #     results = []
-    #     names = []
-    #     for name, model in self.models:
-    #         kfold = KFold(n_splits=10, random_state=self.config.random_seed, shuffle=True)
-    #         cv_results = cross_val_score(model, self.X_train, self.y_train, cv=kfold, scoring='accuracy')
-    #         results.append(cv_results)
-    #         names.append(name)
-    #         msg = "%s: %f (%f)" % (name, cv_results.mean(), cv_results.std())
-    #         print(msg)
-    #         logging.info(f"{name} model trained")
-    #     logging.info('Training complete')
-    #     return results, names
-    #
-    # def results(self, results, names):
-    #     # Compare Algorithms
-    #     fig = pyplot.figure()
-    #     fig.suptitle('Algorithm Comparison')
-    #     ax = fig.add_subplot(111)
-    #     pyplot.boxplot(results)
-    #     ax.set_xticklabels(names)
-    #     pyplot.show()
-    #
-    #     # Make predictions on validation dataset
-    #     knn = KNeighborsClassifier()
-    #     knn.fit(self.X_train, self.y_train)
-    #     predictions = knn.predict(self.X_test)
-    #     print(accuracy_score(self.y_test, predictions))
-    #     print(confusion_matrix(self.y_test, predictions))
-    #     print(classification_report(self.y_test, predictions))
-    #     logging.info('Results complete')
+        print(classification_report(y_test, y_pred))
 
-    @staticmethod
-    def saveModel(model_dir, model):
-        pickle.dump(model, open(model_dir, 'wb'))
+        print('Accuracy:', accuracy_score(y_test, y_pred))
+        print('Mean Absolute Error:', mean_absolute_error(y_test, y_pred))
+        print('Mean Squared Error:', mean_squared_error(y_test, y_pred))
+        print('Mean Root Squared Error:', np.sqrt(mean_squared_error(y_test, y_pred)))
+        plt.show()
+        logging.info('Results complete')
 
-    @staticmethod
-    def loadModel(model_dir):
-        loaded_model = pickle.load(open(model_dir, 'rb'))
-        return loaded_model
+    def saveModel(self, model_name: str, model: Any) -> None:
+        """
+        Saves the model by serialising the model object.
+        :param model_name: str
+        :param model: Any
+        :return:
+            - None
+        """
+        try:
+            pickle.dump(model, open(self.config.model_dir + model_name, 'wb'))
+        except Exception as e:
+            logging.warning(e)
+
+    def loadModel(self, model_name: str) -> Any | None:
+        """
+        Loads the model by deserialising a json file
+        :param model_name: str
+        :return:
+            - model - Any | None
+        """
+        try:
+            return pickle.load(open(self.config.model_dir + model_name, 'rb'))
+        except Exception as e:
+            logging.warning(e)
 
     def main(self):
-        self.raw_dataset = self.loadDataset(self.dataset_name)
         if self.raw_dataset is None:
             logging.error("Couldn't load a dataset")
             return
@@ -217,7 +252,10 @@ class MachineLearning(object):
         self.model = self.trainModel(self.X_train, self.y_train)
         self.resultAnalysis(self.model, self.X, self.X_test, self.y_test)
 
-        # results, names = self.train()
-        # self.results(results, names)
+        logging.info('Saving model')
+        self.saveModel('iris.model', self.model)
+        logging.info('Loading model')
+        self.model = self.loadModel('iris.model')
+        self.resultAnalysis(self.model, self.X, self.X_test, self.y_test)
 
         logging.info('Competed')
