@@ -123,9 +123,8 @@ class MachineLearning(object):
         # TODO: Fix docstring
         #   Add extraction methods
         logging.info('Extracting features')
-        X = x  # denotes independent features
 
-        return dataset, X, y
+        return dataset, x, y
 
     def exploratoryDataAnalysis(self, dataset: DataFrame, x: DataFrame, y: DataFrame) -> None:
         """
@@ -142,15 +141,16 @@ class MachineLearning(object):
         if not self.config.show_figs:
             return
 
-        X = x  # denotes independent features
-
         plt.figure()
         dataset[self.config.target].value_counts().plot(kind='bar')
 
-        plt.figure(figsize=(10, 5))
-        pca = PCA(n_components=2)
-        view = pca.fit_transform(X)
-        plt.scatter(view[:, 0], view[:, 1], c=y, alpha=0.2, cmap='Set1')
+        plt.figure(figsize=(15, 5))
+        for i in np.unique(y):
+            n = dataset[y == i]
+            pca = PCA(n_components=2)
+            view = pca.fit_transform(n)
+            plt.scatter(view[:, 0], view[:, 1], label=i, alpha=0.2, cmap='Set1')
+        plt.legend()
         plt.plot()
 
         if self.config.dataset_name == 'Fashion-MNIST':
