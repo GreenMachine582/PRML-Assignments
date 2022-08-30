@@ -33,7 +33,6 @@ def main() -> None:
     :return:
         - None
     """
-    config = PRML.Config(ROOT_DIR)
     run = True
     while run:
         try:
@@ -47,17 +46,21 @@ def main() -> None:
             if choice == 0:
                 return
             elif choice == 1:
-                ml = PRML.MachineLearning(config, 'Fashion-MNIST')
+                config = PRML.Config(ROOT_DIR, 'Fashion-MNIST', 'openml')
+                ml = PRML.MachineLearning(config)
                 ml.main()
                 return
             elif choice == 2:
-                ml = PRML.MachineLearning(config, 'Fashion-MNIST.csv')
+                config = PRML.Config(ROOT_DIR, 'Fashion-MNIST')
+                config.load() if os.path.isfile(config.config_dir) else config.save()
+                ml = PRML.MachineLearning(config)
                 ml.main()
                 return
             elif choice == 3:
+                config = PRML.Config(ROOT_DIR, 'iris.data')
                 config.target = 'class'
                 config.names = ['sepal-length', 'sepal-width', 'petal-length', 'petal-width', 'class']
-                ml = PRML.MachineLearning(config, 'iris.data.csv')
+                ml = PRML.MachineLearning(config)
                 ml.main()
                 return
         except ValueError:
