@@ -3,6 +3,7 @@ log.txt
 .idea
 venv
 /venv
+/configs/*
 /datasets/*
 /models/*
 /PRML/VERSION
