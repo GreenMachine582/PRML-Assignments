@@ -17,18 +17,17 @@ from sklearn.metrics import confusion_matrix, classification_report, accuracy_sc
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.decomposition import PCA
 
 DataFrame: type = pd.core.frame.DataFrame
 
 
 class MachineLearning(object):
 
-    def __init__(self, config: Config, dataset_name: str, names: list = None):
+    def __init__(self, config: Config):
         self.config = config
-        self.dataset_name = dataset_name
-        self.names = names
 
-        self.raw_dataset = self.loadDataset(dataset_name)
+        self.raw_dataset = self.loadDataset()
 
         self.X = None
         self.y = None
@@ -52,49 +51,47 @@ class MachineLearning(object):
         dataset[self.config.target] = fetched_dataset['target']
         return dataset
 
-    def loadDataset(self, dataset_name: str) -> DataFrame:
+    def loadDataset(self) -> DataFrame:
         """
         Checks and loads a locally stored .csv dataset as a pandas DataFrame.
         If dataset was not located, it will attempt to fetch from OpenML, and convert
         the dataset to a DataFrame object.
-        :param dataset_name: str
         :return:
             - dataset - DataFrame
         """
         logging.info(f"Loading dataset")
 
-        if '.csv' not in dataset_name:
-            if not os.path.isfile(f'{self.config.dataset_dir}{dataset_name}.csv'):
-                fetched_dataset = fetch_openml(dataset_name, version=1)
-                logging.info('Fetched dataset')
+        if self.config.dataset_type == 'openml':
+            if not os.path.isfile(self.config.dataset_dir):
                 try:
-                    dataset = self.bunchToDataframe(fetched_dataset)
-                    self.config.names = fetched_dataset['feature_names'] + [self.config.target]
-                    logging.info('Converted dataset to DataFrame')
-                    dataset_name = dataset_name + '.csv'
-                    self.saveDataset(dataset_name, dataset)
+                    fetched_dataset = fetch_openml(self.config.dataset_name, version=1)
                 except Exception as e:
-                    logging.warning("Couldn't fetch dataset", e)
+                    print(e)
                     return
+                logging.info('Fetched dataset')
+                dataset = self.bunchToDataframe(fetched_dataset)
+                self.config.names = fetched_dataset['feature_names'] + [self.config.target]
+                self.config.dataset_type = '.csv'
+                logging.info('Converted dataset to DataFrame')
+                self.saveDataset(dataset)
 
-        if not os.path.isfile(self.config.dataset_dir + dataset_name):
-            logging.error(f"Missing file {self.config.dataset_dir}{dataset_name}")
+        try:
+            dataset = pd.read_csv(self.config.dataset_dir, names=self.config.names, sep=self.config.seperator)
+        except FileNotFoundError as e:
+            logging.warning(e)
             return
-        dataset = pd.read_csv(self.config.dataset_dir + dataset_name, names=self.config.names,
-                              sep=self.config.seperator)
         logging.info('Loaded dataset')
         return dataset
 
-    def saveDataset(self, dataset_name: str, dataset: DataFrame) -> None:
+    def saveDataset(self, dataset: DataFrame) -> None:
         """
-        Saves the dataset in a .csv file using a Pandas method.
-        :param dataset_name: str
+        Saves the dataset to a file using pandas to csv.
         :param dataset: DataFrame
         :return:
             - None
         """
-        dataset.to_csv(self.config.dataset_dir + dataset_name, sep=self.config.seperator, index=False)
-        logging.info(f"Dataset saved {self.config.dataset_dir + dataset_name}")
+        dataset.to_csv(self.config.dataset_dir, sep=self.config.seperator, index=False)
+        logging.info('Dataset saved', self.config.dataset_dir)
 
     def processData(self, dataset: DataFrame) -> tuple:
         """
@@ -103,6 +100,8 @@ class MachineLearning(object):
         :return:
             - dataset, X, y - tuple[DataFrame]
         """
+        X, y = dataset.drop(self.config.target, axis=1), dataset[self.config.target]
+
         plt.figure(figsize=(10, 3))
         for i in range(5):
             instance_data = dataset.iloc[i]
@@ -116,6 +115,12 @@ class MachineLearning(object):
 
         plt.figure()
         dataset[self.config.target].value_counts().plot(kind='bar')
+
+        plt.figure(figsize=(10, 5))
+        pca = PCA(n_components=2)
+        view = pca.fit_transform(X)
+        plt.scatter(view[:, 0], view[:, 1], c=y, alpha=0.2, cmap='Set1')
+        plt.plot()
 
         plt.figure(figsize=(15, 3))
         for i in range(10):
@@ -132,8 +137,6 @@ class MachineLearning(object):
 
         plt.show()
 
-        X, y = dataset.drop(self.config.target, axis=1), dataset[self.config.target]
-
         if self.config.show_small_responses:
             print(dataset.axes)
             print(dataset.head())
@@ -141,7 +144,6 @@ class MachineLearning(object):
 
             print(np.array(X.iloc[9][:-1].values.reshape(28, 28)))
         print('X shape:', X.shape)
-        quit()
         logging.info('Data processed')
         return dataset, X, y
 
@@ -193,7 +195,7 @@ class MachineLearning(object):
                 misclassifiedIndexes.append(index)
             index += 1
 
-        plt.figure(figsize=(10, 3))
+        plt.figure(figsize=(15, 3))
         for plotIndex, badIndex in enumerate(misclassifiedIndexes[0:5]):
             plt.subplot(1, 5, plotIndex + 1)
             plt.axis("off")
@@ -214,32 +216,29 @@ class MachineLearning(object):
         plt.show()
         logging.info('Results complete')
 
-    def saveModel(self, model_name: str, model: Any) -> None:
+    def saveModel(self, model: Any) -> None:
         """
         Saves the model by serialising the model object.
-        :param model_name: str
         :param model: Any
         :return:
             - None
         """
-        try:
-            pickle.dump(model, open(self.config.model_dir + model_name, 'wb'))
-        except Exception as e:
-            logging.warning(e)
+        logging.info(f'Saving model {self.config.model_dir}')
+        pickle.dump(model, open(self.config.model_dir, 'wb'))
 
-    def loadModel(self, model_name: str) -> Any | None:
+    def loadModel(self) -> Any:
         """
         Loads the model by deserialising a json file
-        :param model_name: str
         :return:
-            - model - Any | None
+            - model - Any
         """
+        logging.info(f'Loading model {self.config.model_dir}')
         try:
-            return pickle.load(open(self.config.model_dir + model_name, 'rb'))
-        except Exception as e:
+            return pickle.load(open(self.config.model_dir, 'rb'))
+        except FileNotFoundError as e:
             logging.warning(e)
 
-    def main(self):
+    def main(self) -> None:
         if self.raw_dataset is None:
             logging.error("Couldn't load a dataset")
             return
@@ -250,12 +249,11 @@ class MachineLearning(object):
         self.X_train, self.X_test, self.y_train, self.y_test = self.splitDataset(self.X, self.y)
 
         self.model = self.trainModel(self.X_train, self.y_train)
+
         self.resultAnalysis(self.model, self.X, self.X_test, self.y_test)
 
-        logging.info('Saving model')
-        self.saveModel('iris.model', self.model)
-        logging.info('Loading model')
-        self.model = self.loadModel('iris.model')
+        self.saveModel(self.model)
+        self.model = self.loadModel()
         self.resultAnalysis(self.model, self.X, self.X_test, self.y_test)
 
         logging.info('Competed')
