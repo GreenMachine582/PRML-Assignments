@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 
 
 class Config(object):
@@ -15,12 +16,12 @@ class Config(object):
         self.dataset_name = dataset_name
         self.dataset_type = dataset_type
 
-        self.config_dir = f'{_dir}\\config\\{dataset_name}.json'
+        self.config_dir = f'{_dir}\\configs\\{dataset_name}.json'
         self.dataset_dir = f'{_dir}\\datasets\\{dataset_name}.csv'
         self.model_dir = f'{_dir}\\models\\{dataset_name}.model'
 
         self.show_figs = True
-        self.show_small_responses = False
+        self.show_small_responses = True
 
         # dataset related
         self.seperator = ','
@@ -50,9 +51,9 @@ class Config(object):
         :return:
             - None
         """
-        logging.info('Loading config', self.config_dir)
+        logging.info(f'Loading config {self.config_dir}')
         try:
-            with open(self.config_dir, 'r') as f:
+            with open(self.config_dir, 'r', encoding='utf-8') as f:
                 self.update(json.load(f))
         except FileNotFoundError as e:
             logging.warning(e)
@@ -64,6 +65,6 @@ class Config(object):
         :return:
             - None
         """
-        logging.info('Saving config', self.config_dir)
-        with open(self.config_dir, 'w') as f:
+        logging.info(f'Saving config {self.config_dir}')
+        with open(self.config_dir, 'w', encoding='utf-8') as f:
             json.dump(self.__dict__, f, indent=4)
