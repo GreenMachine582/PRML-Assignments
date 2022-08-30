@@ -39,27 +39,12 @@ def main() -> None:
             print("""
             0 - Quit
             1 - 'Fashion-MNIST'
-            2 - 'Fashion-MNIST.csv'
-            3 - 'iris.data.csv'
             """)
             choice = int(input("Which question number: "))
             if choice == 0:
                 return
             elif choice == 1:
                 config = PRML.Config(ROOT_DIR, 'Fashion-MNIST', 'openml')
-                ml = PRML.MachineLearning(config)
-                ml.main()
-                return
-            elif choice == 2:
-                config = PRML.Config(ROOT_DIR, 'Fashion-MNIST')
-                config.load() if os.path.isfile(config.config_dir) else config.save()
-                ml = PRML.MachineLearning(config)
-                ml.main()
-                return
-            elif choice == 3:
-                config = PRML.Config(ROOT_DIR, 'iris.data')
-                config.target = 'class'
-                config.names = ['sepal-length', 'sepal-width', 'petal-length', 'petal-width', 'class']
                 ml = PRML.MachineLearning(config)
                 ml.main()
                 return
