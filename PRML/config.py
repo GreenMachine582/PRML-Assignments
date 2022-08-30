@@ -33,7 +33,7 @@ class Config(object):
         self.random_seed = 0
         self.model_type = 'LogisticRegression'
 
-        config.load() if os.path.isfile(config.config_dir) else config.save()
+        self.load() if os.path.isfile(self.config_dir) else self.save()
 
     def update(self, kwargs: dict) -> None:
         """
