@@ -50,6 +50,8 @@ def main() -> None:
                 return
         except ValueError:
             print("Please enter a valid choice!")
+        except Exception as e:
+            logging.error(e)
 
 
 if __name__ == '__main__':
