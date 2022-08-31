@@ -44,7 +44,7 @@ def main() -> None:
             if choice == 0:
                 return
             elif choice == 1:
-                config = PRML.Config(ROOT_DIR, 'Fashion-MNIST', 'openml')
+                config = PRML.Config(ROOT_DIR, 'Fashion-MNIST')
                 ml = PRML.MachineLearning(config)
                 ml.main()
                 return

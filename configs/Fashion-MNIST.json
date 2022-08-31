@@ -1,7 +1,6 @@
 {
     "dir": "Z:\\matthew\\Desktop\\PRML-MachineLearning",
     "dataset_name": "Fashion-MNIST",
-    "dataset_type": ".csv",
     "config_dir": "Z:\\matthew\\Desktop\\PRML-MachineLearning\\configs\\Fashion-MNIST.json",
     "dataset_dir": "Z:\\matthew\\Desktop\\PRML-MachineLearning\\datasets\\Fashion-MNIST.csv",
     "model_dir": "Z:\\matthew\\Desktop\\PRML-MachineLearning\\models\\Fashion-MNIST.model",

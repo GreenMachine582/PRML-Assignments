@@ -11,10 +11,9 @@ class Config(object):
     class can use. The end-user can save, load and update the attributes.
     """
 
-    def __init__(self, _dir: str, dataset_name: str, dataset_type: str = '.csv'):
+    def __init__(self, _dir: str, dataset_name: str):
         self.dir = _dir
         self.dataset_name = dataset_name
-        self.dataset_type = dataset_type
 
         self.config_dir = f'{_dir}\\configs\\{dataset_name}.json'
         self.dataset_dir = f'{_dir}\\datasets\\{dataset_name}.csv'

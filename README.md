@@ -6,7 +6,7 @@ import PRML
 
 ROOT_DIR = os.path.dirname(__file__)
 dataset_name = 'Fashion-MNIST'
-config = PRML.Config(ROOT_DIR, dataset_name, dataset_type='openml')
+config = PRML.Config(ROOT_DIR, dataset_name)
 ml = PRML.MachineLearning(config)
 ml.main()
 ```
