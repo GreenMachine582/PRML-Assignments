@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pickle
-import seaborn as sns
+import seaborn as sn
 
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split, KFold, cross_val_score
@@ -58,26 +58,20 @@ class MachineLearning(object):
         :return:
             - dataset - DataFrame
         """
-        logging.info(f'Loading dataset {self.config.dataset_name}')
 
-        if self.config.dataset_type == 'openml':
-            if not os.path.isfile(self.config.dataset_dir):
-                try:
-                    fetched_dataset = fetch_openml(self.config.dataset_name, version=1)
-                except Exception as e:
-                    logging.warning(e)
-                    return
-                logging.info('Fetched dataset')
-                dataset = self.bunchToDataframe(fetched_dataset)
-                self.config.names = fetched_dataset['feature_names'] + [self.config.target]
-                self.config.dataset_type = '.csv'
-                self.saveDataset(dataset)
-        try:
-            dataset = pd.read_csv(self.config.dataset_dir, names=self.config.names, sep=self.config.seperator)
-        except FileNotFoundError as e:
-            logging.warning(e)
-            return
-        return dataset
+        if not os.path.isfile(self.config.dataset_dir):
+            logging.info('Fetching dataset')
+            try:
+                fetched_dataset = fetch_openml(self.config.dataset_name, version=1)
+            except Exception as e:
+                logging.warning(e)
+                return
+            dataset = self.bunchToDataframe(fetched_dataset)
+            self.config.names = fetched_dataset['feature_names'] + [self.config.target]
+            self.saveDataset(dataset)
+        logging.info(f'Loading dataset {self.config.dataset_dir}')
+        return pd.read_csv(self.config.dataset_dir, names=self.config.names, sep=self.config.seperator,
+                           low_memory=False)
 
     def saveDataset(self, dataset: DataFrame) -> None:
         """
@@ -98,6 +92,7 @@ class MachineLearning(object):
         """
         # TODO: Fix docstring
         logging.info('Processing data')
+
         X = dataset.drop(self.config.target, axis=1)  # denotes independent features
         y = dataset[self.config.target]  # denotes dependent variables
 
@@ -142,23 +137,29 @@ class MachineLearning(object):
         if not self.config.show_figs:
             return
 
-        if self.config.dataset_name == 'Fashion-MNIST':
-            plt.figure(figsize=(15, 3))
-            for i in range(10):
-                for idx in range(dataset.shape[0]):
-                    instance_data = dataset.iloc[idx]
-                    label = instance_data[-1]
-                    if label == i:
-                        image = instance_data[:-1].values
-                        plt.subplot(1, 10, i + 1)
-                        plt.imshow(np.array(image).reshape(28, 28), cmap=plt.cm.gray)
-                        plt.title('Label: %i\n' % int(i), fontsize=15)
-                        break
-            plt.plot()
+        # plots a corresponding matrix
+        # plt.figure()
+        # sn.heatmap(dataset.corr(), annot=True)
 
+        # plots an example for each target
+        plt.figure(figsize=(15, 3))
+        for i in range(10):
+            for idx in range(dataset.shape[0]):
+                instance_data = dataset.iloc[idx]
+                label = instance_data[-1]
+                if label == i:
+                    image = instance_data[:-1].values
+                    plt.subplot(1, 10, i + 1)
+                    plt.imshow(np.array(image).reshape(28, 28), cmap=plt.cm.gray)
+                    plt.title('Label: %i\n' % int(i), fontsize=15)
+                    break
+        plt.plot()
+
+        # plots a bar graph to represent number of instances per target
         plt.figure()
         dataset[self.config.target].value_counts().plot(kind='bar')
 
+        # plots a PCA scatter plot to represent all instances and targets
         plt.figure(figsize=(15, 5))
         for i in np.unique(y):
             n = dataset[y == i]
@@ -168,17 +169,17 @@ class MachineLearning(object):
         plt.legend()
         plt.plot()
 
-        plt.show()
+        plt.show()  # displays the plots
 
     def splitDataset(self, x: DataFrame, y: DataFrame) -> tuple:
         """
-
+        Splits the dataset into train and test with a given ratio to avoid overfitting
+        the model.
         :param x: DataFrame
         :param y: DataFrame
         :return:
             - X_train, X_test, y_train, y_test - tuple[DataFrame]
         """
-        # TODO: Fix docstring
         logging.info('Splitting data')
         X_train, X_test, y_train, y_test = train_test_split(x, y, train_size=self.config.split_ratio,
                                                             random_state=self.config.random_seed)
@@ -223,37 +224,54 @@ class MachineLearning(object):
         if self.config.show_figs:
             ConfusionMatrixDisplay(cm, display_labels=model.classes_).plot()
 
-            plt.figure(figsize=(10, 3))
+            # plots the first 5 predictions
+            plt.figure(label='Predictions', figsize=(10, 3))
             for i in range(5):
                 prediction = model.predict(x)[i]
                 plt.subplot(1, 5, i + 1)
                 plt.axis("off")
-                image = x.iloc[[i]].values[0]
+                image = x.iloc[i].values
                 plt.imshow(np.array(image).reshape(28, 28), cmap=plt.cm.gray_r, interpolation='nearest')
                 plt.title('Prediction: %i' % int(prediction))
             plt.plot()
-            logging.info('Predicted results')
 
+            # finds the misclassified and correctly classified predictions
             index = 0
-            misclassifiedIndexes = []
+            misclassified_indexes, classified_indexes = [], []
             for label, predict in zip(y_test, y_pred):
                 if label != predict:
-                    misclassifiedIndexes.append(index)
+                    misclassified_indexes.append(index)
+                elif label == predict:
+                    classified_indexes.append(index)
                 index += 1
+            print(misclassified_indexes[:5])
+            print(classified_indexes[:5])
 
-            plt.figure(figsize=(15, 3))
-            for plotIndex, badIndex in enumerate(misclassifiedIndexes[0:5]):
-                plt.subplot(1, 5, plotIndex + 1)
+            # plots the misclassified predictions
+            plt.figure(label='Misclassified predictions', figsize=(15, 3))
+            for plot_index, bad_index in enumerate(misclassified_indexes[:5]):
+                plt.subplot(1, 5, plot_index + 1)
                 plt.axis("off")
-                image = x_test.iloc[[badIndex]].values[0]
+                image = x_test.iloc[bad_index].values
                 plt.imshow(np.array(image).reshape(28, 28),
                            cmap=plt.cm.gray, interpolation='nearest')
-                plt.title('Predicted: {}, Actual: {}'.format(y_pred[badIndex], np.array(y_test)[badIndex]),
+                plt.title('Predicted: {}, Actual: {}'.format(y_pred[plot_index], np.array(y_test)[bad_index]),
                           fontsize=15)
             plt.plot()
-            logging.info('Misclassified results')
 
-            plt.show()
+            # plots the correctly classified predictions
+            plt.figure(label='Correctly classified predictions', figsize=(15, 3))
+            for plot_index, good_index in enumerate(classified_indexes[:5]):
+                plt.subplot(1, 5, plot_index + 1)
+                plt.axis("off")
+                image = x_test.iloc[good_index].values
+                plt.imshow(np.array(image).reshape(28, 28),
+                           cmap=plt.cm.gray, interpolation='nearest')
+                plt.title('Predicted: {}, Actual: {}'.format(y_pred[plot_index], np.array(y_test)[good_index]),
+                          fontsize=15)
+            plt.plot()
+
+            plt.show()  # displays all plots
 
         print(classification_report(y_test, y_pred))
 
@@ -293,7 +311,7 @@ class MachineLearning(object):
 
         self.dataset, self.X, self.y = self.extractFeatures(self.dataset, self.X, self.y)
 
-        self.exploratoryDataAnalysis(self.dataset, self.X, self.y)
+        # self.exploratoryDataAnalysis(self.dataset, self.X, self.y)
 
         self.X_train, self.X_test, self.y_train, self.y_test = self.splitDataset(self.X, self.y)
 
@@ -301,6 +319,6 @@ class MachineLearning(object):
 
         self.resultAnalysis(self.model, self.X, self.X_test, self.y_test)
 
-        self.saveModel(self.model)
-        self.model = self.loadModel()
-        self.resultAnalysis(self.model, self.X, self.X_test, self.y_test)
+        # self.saveModel(self.model)
+        # self.model = self.loadModel()
+        # self.resultAnalysis(self.model, self.X, self.X_test, self.y_test)
