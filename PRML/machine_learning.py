@@ -109,6 +109,7 @@ class MachineLearning(object):
             if self.config.dataset_name == 'Fashion-MNIST':
                 print(np.array(X.iloc[9].values).reshape(28, 28))
             print('X shape:', X.shape)
+            print(dataset.corr())  # corresponding matrix
         return dataset, X, y
 
     def extractFeatures(self, dataset: DataFrame, x: DataFrame, y: DataFrame) -> tuple:
@@ -141,29 +142,7 @@ class MachineLearning(object):
         if not self.config.show_figs:
             return
 
-        plt.figure()
-        dataset[self.config.target].value_counts().plot(kind='bar')
-
-        plt.figure(figsize=(15, 5))
-        for i in np.unique(y):
-            n = dataset[y == i]
-            pca = PCA(n_components=2)
-            view = pca.fit_transform(n)
-            plt.scatter(view[:, 0], view[:, 1], label=i, alpha=0.2, cmap='Set1')
-        plt.legend()
-        plt.plot()
-
         if self.config.dataset_name == 'Fashion-MNIST':
-            plt.figure(figsize=(10, 3))
-            for i in range(5):
-                instance_data = dataset.iloc[i]
-                image = instance_data[:-1].values
-                label = instance_data[-1]
-                plt.subplot(1, 5, i + 1)
-                plt.imshow(np.array(image).reshape(28, 28), cmap=plt.cm.gray)
-                plt.title('Training: %i\n' % int(label), fontsize=15)
-            plt.plot()
-
             plt.figure(figsize=(15, 3))
             for i in range(10):
                 for idx in range(dataset.shape[0]):
@@ -176,6 +155,18 @@ class MachineLearning(object):
                         plt.title('Label: %i\n' % int(i), fontsize=15)
                         break
             plt.plot()
+
+        plt.figure()
+        dataset[self.config.target].value_counts().plot(kind='bar')
+
+        plt.figure(figsize=(15, 5))
+        for i in np.unique(y):
+            n = dataset[y == i]
+            pca = PCA(n_components=2)
+            view = pca.fit_transform(n)
+            plt.scatter(view[:, 0], view[:, 1], label=i, alpha=0.2, cmap='Set1')
+        plt.legend()
+        plt.plot()
 
         plt.show()
 
