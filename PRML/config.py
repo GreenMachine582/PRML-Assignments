@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+from pathlib import Path
 
 
 class Config(object):
@@ -11,13 +12,13 @@ class Config(object):
     class can use. The end-user can save, load and update the attributes.
     """
 
-    def __init__(self, _dir: str, dataset_name: str):
-        self.dir = _dir
+    def __init__(self, working_dir: str, dataset_name: str):
+        self.working_dir = working_dir
         self.dataset_name = dataset_name
 
-        self.config_dir = f'{_dir}\\configs\\{dataset_name}.json'
-        self.dataset_dir = f'{_dir}\\datasets\\{dataset_name}.csv'
-        self.model_dir = f'{_dir}\\models\\{dataset_name}.model'
+        self.config_dir = working_dir + '\\configs'
+        self.dataset_dir = working_dir + '\\datasets'
+        self.model_dir = working_dir + '\\models'
 
         self.show_figs = True
         self.show_small_responses = True
@@ -32,7 +33,21 @@ class Config(object):
         self.random_seed = 0
         self.model_type = 'LogisticRegression'
 
-        self.load() if os.path.isfile(self.config_dir) else self.save()
+        self.load() if os.path.isfile(self.config_dir.format(self.dataset_name)) else self.save()
+
+    @staticmethod
+    def checkPath(path: str, extension: str = '') -> tuple:
+        """
+        Adds an extension if not already included in path, then checks if path exists.
+        :param path: str
+        :param extension: str
+        :return:
+            - path, exist - tuple[str]
+        """
+        if os.path.splitext(path)[1] != extension:
+            path = path + extension
+        exist = True if os.path.exists(path) else False
+        return path, exist
 
     def update(self, kwargs: dict) -> None:
         """
@@ -47,25 +62,32 @@ class Config(object):
 
     def load(self) -> None:
         """
-        Attempts to load the config file using json, if file is not found
-        a warning will be logged.
+        Attempts to load the config file using json, if file is not found a warning
+        will be logged.
         :return:
             - None
         """
-        logging.info(f'Loading config {self.config_dir}')
-        try:
-            with open(self.config_dir, 'r', encoding='utf-8') as f:
+        path, exist = self.checkPath(f'{self.config_dir}\\{self.dataset_name}', '.json')
+
+        if exist:
+            logging.info(f'Loading config {path}')
+            with open(path, 'r', encoding='utf-8') as f:
                 self.update(json.load(f))
-        except FileNotFoundError as e:
-            logging.warning(e)
+        else:
+            logging.warning(f"Missing file '{path}'")
 
     def save(self) -> None:
         """
-        Saves the config attributes as an indented dict in a json file,
-        to allow end-users to edit and easily view the default configs.
+        Saves the config attributes as an indented dict in a json file, to allow
+        end-users to edit and easily view the default configs.
         :return:
             - None
         """
-        logging.info(f'Saving config {self.config_dir}')
-        with open(self.config_dir, 'w', encoding='utf-8') as f:
+        _, exist = self.checkPath(self.config_dir)
+        if not exist:
+            os.makedirs(self.config_dir)
+        path, _ = self.checkPath(f'{self.config_dir}\\{self.dataset_name}', '.json')
+
+        logging.info(f"Saving file '{path}'")
+        with open(path, 'w', encoding='utf-8') as f:
             json.dump(self.__dict__, f, indent=4)
