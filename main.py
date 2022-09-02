@@ -5,7 +5,7 @@ import os
 import sys
 from time import time
 
-import PRML
+import examples
 
 # Sets up the in-built logger to record key information and save it to a text file
 logging.basicConfig(level=logging.INFO, filename='log.txt', filemode='w',
@@ -35,23 +35,25 @@ def main() -> None:
     """
     run = True
     while run:
+        print("""
+        0 - Quit
+        1 - PRML Assignment 1 B
+        """)
+        choice = input("Which question number: ")
         try:
-            print("""
-            0 - Quit
-            1 - 'Fashion-MNIST'
-            """)
-            choice = int(input("Which question number: "))
+            choice = int(choice)
+        except ValueError:
+            print('\nPlease enter a valid response!')
+            choice = None
+
+        if choice is not None:
             if choice == 0:
                 return
             elif choice == 1:
-                config = PRML.Config(ROOT_DIR, 'Fashion-MNIST')
-                ml = PRML.MachineLearning(config)
-                ml.main()
+                examples.a1b()
                 return
-        except ValueError:
-            print("Please enter a valid choice!")
-        except Exception as e:
-            logging.error(e)
+            else:
+                print("\nPlease enter a valid choice!")
 
 
 if __name__ == '__main__':

@@ -4,14 +4,12 @@
 import os
 import PRML
 
-ROOT_DIR = os.path.dirname(__file__)
+local_dir = os.path.dirname(__file__)
 dataset_name = 'Fashion-MNIST'
-config = PRML.Config(ROOT_DIR, dataset_name)
+
+config = PRML.Config(local_dir, dataset_name)
 ml = PRML.MachineLearning(config)
-ml.main()
-```
-#### Callable Functions
-```python
+
 dataset = ml.loadDataset()
 ml.saveDataset(dataset)
 
@@ -27,6 +25,6 @@ model = ml.trainModel(X_train, y_train)
 
 ml.resultAnalysis(model, X, X_test, y_test)
 
-ml.saveModel(model)
 model = ml.loadModel()
+ml.saveModel(model)
 ```
