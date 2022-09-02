@@ -1,5 +1,3 @@
 
-from .machine_learning import MachineLearning
-from .config import Config
-
-__all__ = ['MachineLearning', 'Config']
+from PRML.machine_learning import MachineLearning
+from PRML.config import Config
