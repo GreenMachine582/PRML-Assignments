@@ -3,8 +3,10 @@ log.txt
 .idea
 venv
 /venv
-/datasets/*
-/models/*
+/examples/configs/*
+/examples/datasets/*
+/examples/models/*
+/examples/__pycache__/
 /PRML/VERSION
 /PRML/__pycache__/
 
