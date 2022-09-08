@@ -7,8 +7,8 @@ venv
 /examples/datasets/*
 /examples/models/*
 /examples/__pycache__/
-/PRML/VERSION
-/PRML/__pycache__/
+/machine_learning/VERSION
+/machine_learning/__pycache__/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

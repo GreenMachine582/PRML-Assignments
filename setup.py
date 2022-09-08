@@ -31,7 +31,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name='PRML-MachineLearning',
+    name='machine_learning-MachineLearning',
     version=version,
     author='Matthew Johnson, Leigh Hill',
     author_email='greenchicken1902@gmail.com, u3215513@uni.canberra.edu.au',
@@ -54,7 +54,7 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3 :: Only'
     ],
-    keywords='PRML, machine-learning, cross-validation, long-short-term-memory, convolutional-neural-networks, linear-regression, k-means-clustering',
+    keywords='machine_learning, machine-learning, cross-validation, long-short-term-memory, convolutional-neural-networks, linear-regression, k-means-clustering',
     python_requires='>=3.10, <4',
     entry_points={},
     install_requires=[],

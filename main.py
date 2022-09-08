@@ -37,7 +37,7 @@ def main() -> None:
     while run:
         print("""
         0 - Quit
-        1 - PRML Assignment 1 B
+        1 - Assignment 1 B
         """)
         choice = input("Which question number: ")
         try:

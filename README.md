@@ -2,13 +2,13 @@
 
 ```python
 import os
-import PRML
+import machine_learning
 
 local_dir = os.path.dirname(__file__)
 dataset_name = 'Fashion-MNIST'
 
-config = PRML.Config(local_dir, dataset_name)
-ml = PRML.MachineLearning(config)
+config = machine_learning.Config(local_dir, dataset_name)
+ml = machine_learning.MachineLearning(config)
 
 dataset = ml.loadDataset()
 ml.saveDataset(dataset)
