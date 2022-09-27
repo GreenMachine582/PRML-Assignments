@@ -1,5 +1,3 @@
 
-from examples.assignment_1_b import main as a1b
-
-
-__all__ = ['a1b']
+from . import assignment_1_b, assignment_2_a, process, assignment_2_b
+from .process import processDataset

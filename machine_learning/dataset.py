@@ -194,11 +194,12 @@ class Dataset(object):
         :return: completed - bool
         """
         name = utils.joinPath(self.name, ext='.csv')
-        self.df = load(self.dir_, name, target=self.target, sep=self.sep)
-        if self.df is None:
-            logging.warning(f"Failed to load dataset '{self.name}'")
-            return False
-        return True
+        df = load(self.dir_, name, target=self.target, sep=self.sep)
+        if isinstance(df, DataFrame):
+            self.df = df
+            return True
+        logging.warning(f"Failed to load dataset '{self.name}'")
+        return False
 
     def save(self) -> bool:
         """

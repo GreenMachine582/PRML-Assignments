@@ -38,6 +38,9 @@ def main() -> None:
         print("""
         0 - Quit
         1 - Assignment 1 B
+        2 - Assignment 2 A
+        3 - Process BTC
+        4 - Assignment 1 B
         """)
         choice = input("Which question number: ")
         try:
@@ -50,7 +53,16 @@ def main() -> None:
             if choice == 0:
                 return
             elif choice == 1:
-                examples.a1b()
+                examples.assignment_1_b.main(ROOT_DIR)
+                return
+            elif choice == 2:
+                examples.assignment_2_a.main(ROOT_DIR)
+                return
+            elif choice == 3:
+                examples.process.main(ROOT_DIR)
+                return
+            elif choice == 4:
+                examples.assignment_2_b.main(ROOT_DIR)
                 return
             else:
                 print("\nPlease enter a valid choice!")
