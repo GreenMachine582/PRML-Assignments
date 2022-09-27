@@ -2,13 +2,14 @@
 log.txt
 .idea
 venv
-/venv
-/examples/configs/*
-/examples/datasets/*
-/examples/models/*
-/examples/__pycache__/
-/machine_learning/VERSION
-/machine_learning/__pycache__/
+configs/*
+datasets/*
+models/*
+Jupyter Notebooks/.ipynb_checkpoints
+Jupyter Notebooks/*.ipynb
+Jupyter Notebooks/*.html
+examples/__pycache__/
+machine_learning/__pycache__/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
