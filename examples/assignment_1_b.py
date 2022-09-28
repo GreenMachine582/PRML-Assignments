@@ -175,14 +175,14 @@ def main(dir_=local_dir):
     exploratoryDataAnalysis(dataset.df, dataset.target)
 
     X, y = dataset.getIndependent(), dataset.getDependent()
-    X_train, X_test, y_train, y_test = ml.split(X, y, dataset.split_ratio, config.random_seed)
+    X_train, X_test, y_train, y_test = dataset.split(random_state=config.random_state, shuffle=False)
 
-    model = ml.Model(config.model, estimator=LogisticRegression(solver="lbfgs", max_iter=100))
+    model = ml.Model(config.model, model=LogisticRegression(solver="lbfgs", max_iter=100))
 
     model.fit(X_train, y_train)
     model.save()
 
-    resultAnalysis(model.estimator, X, X_test, y_test)
+    resultAnalysis(model.model, X, X_test, y_test)
     return
 
 

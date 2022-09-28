@@ -17,22 +17,21 @@ class Config(object):
 
         :param dir_: dataset's path directory, should be a str
         :param name: dataset's name, should be a str
-        :key dataset: config for dataset, should be a dict
-        :key model: config for model, should be a dict
+        :param kwargs: Additional keywords to pass to update
         :return: None
         """
         # Default configuration for Config
         self.dir_ = utils.joinPath(dir_, 'configs')
         self.name = name
-        self.random_seed = 0
+        self.random_state = 0
 
         # Default configuration for Dataset
         self.dataset = {'dir_': utils.joinPath(dir_, 'datasets'),
                         'name': name,
                         'sep': ',',
-                        'feature_names': [],
-                        'target': 'target',
-                        'split_ratio': 0.8}
+                        'names': [],
+                        'target': 'cnt',
+                        'train_size': 0.8}
 
         # Default configuration for Model
         self.model = {'dir_': utils.joinPath(dir_, 'models'),
