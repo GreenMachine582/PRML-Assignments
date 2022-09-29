@@ -3,8 +3,10 @@ import logging
 import os
 
 from matplotlib import pyplot as plt
+from matplotlib.dates import DateFormatter
 from numpy import ndarray
 from pandas import DataFrame
+import seaborn as sns
 from sklearn.ensemble import GradientBoostingRegressor
 
 import examples
@@ -43,16 +45,18 @@ def main(dir_=local_dir):
 
     dataset = examples.processDataset(dataset)
 
-    X, y = dataset.getIndependent(), dataset.getDependent()
     X_train, X_test, y_train, y_test = dataset.split(random_state=config.random_state, shuffle=False)
 
     model = ml.Model(config.model, model=GradientBoostingRegressor(random_state=config.random_state))
     param_grid = {'loss': ['squared_error', 'absolute_error']}
 
-    cv_results = model.gridSearch(param_grid, X, y)
+    cv_results = model.gridSearch(param_grid, X_train, y_train)
     print('The best estimator:', cv_results.best_estimator_)
-    print('The best score: %.2f%s' % (cv_results.best_score_ * 100, '%'))
+    print('The best score:', cv_results.best_score_)
     print('The best params:', cv_results.best_params_)
+
+    model.update(model=GradientBoostingRegressor(random_state=config.random_state, **cv_results.best_params_))
+    model.fit(X_train, y_train)
 
     model.save()
 

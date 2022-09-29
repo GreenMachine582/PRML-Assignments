@@ -27,8 +27,6 @@ def preProcess(df: DataFrame) -> DataFrame:
     """
     df = ml.handleMissingData(df)
 
-    df['Date'] = pd.to_datetime(df['Date'])
-
     logging.info(f"Pre-Processed dataset")
     return df
 
@@ -72,8 +70,8 @@ def processData(df: DataFrame) -> DataFrame:
     :return: df - DataFrame
     """
     # Adapts the dataset for time series
-    df.index = df['Date']
-    df.drop('Date', axis=1, inplace=True)
+    df['Date'] = pd.to_datetime(df['Date'])
+    df.set_index('Date', inplace=True)
 
     # Adds historical data
     df.loc[:, 'prev'] = df.loc[:, 'Close'].shift()
