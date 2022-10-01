@@ -27,6 +27,8 @@ def preProcess(df: DataFrame) -> DataFrame:
     """
     df = ml.handleMissingData(df)
 
+    df['Date'] = pd.to_datetime(df['Date'])
+
     logging.info(f"Pre-Processed dataset")
     return df
 
@@ -48,8 +50,8 @@ def exploratoryDataAnalysis(df: DataFrame) -> None:
 
     # Line Plot
     plt.figure()
-    plt.plot(df.index, df['Close'])
-    plt.title('BTC Demand Vs Date')
+    plt.plot(df['Date'], df['Close'])
+    plt.title('BTC Stock Close')
     plt.xlabel('Date')
     plt.ylabel('Close ($USD)')
     plt.show()
@@ -109,30 +111,25 @@ def processDataset(dataset: Dataset, overwrite: bool = False) -> Dataset:
     return dataset
 
 
-def main(dir_: str = local_dir) -> None:
+def main(dataset: Dataset) -> None:
     """
     Pre-processes and Processes the datasets.
 
-    :param dir_: project's path directory, should be a str
+    :param dataset:
     :return: None
     """
-    name = 'BTC-USD'
-    config = ml.Config(dir_, name)
-
-    # Loads the BSS dataset
-    dataset = ml.Dataset(config.dataset)
-    if not dataset.load():
-        return
-
+    # TODO: Fix documentation
+    dataset_name = dataset.name
+    print(dataset.df.shape)
     print(dataset.df.head())
     dataset.apply(preProcess)
-    dataset.update(name=name + '-pre-processed')
+    dataset.update(name=(dataset_name + '-pre-processed'))
     dataset.save()
 
     exploratoryDataAnalysis(dataset.df)
 
     dataset.apply(processData)
-    dataset.update(name=name + '-processed')
+    dataset.update(name=(dataset_name + '-processed'))
     print(dataset.df.axes)
     print(dataset.df.head())
     print(dataset.df.dtypes)
@@ -140,7 +137,3 @@ def main(dir_: str = local_dir) -> None:
     sns.heatmap(dataset.df.corr(), annot=True)
     plt.title('Processed Corresponding Matrix')
     plt.show()
-
-
-if __name__ == '__main__':
-    main()

@@ -61,8 +61,8 @@ def gridSearch(model: object, param_grid: dict | list, **kwargs) -> GridSearchCV
     :param kwargs: Additional keywords to pass to GridSearchCV
     :return: cv_results - GridSearchCV
     """
-    defaults = {'n_jobs': -1, 'cv': 10, 'verbose': 2}
-    grid_search = GridSearchCV(model, param_grid, **dict(defaults, **kwargs), return_train_score=True)
+    defaults = {'n_jobs': -1, 'cv': 10, 'verbose': 2, 'return_train_score': True}
+    grid_search = GridSearchCV(model, param_grid, **dict(defaults, **kwargs))
     return grid_search
 
 

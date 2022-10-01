@@ -30,7 +30,7 @@ class Config(object):
                         'name': name,
                         'sep': ',',
                         'names': [],
-                        'target': 'target',
+                        'target': 'Close',
                         'train_size': 0.8}
 
         # Default configuration for Model
