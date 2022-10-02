@@ -33,15 +33,15 @@ def main() -> None:
     :return:
         - None
     """
-    run = True
-    while run:
+    logging.info('Starting program')
+    while True:
         print("""
         0 - Quit
         1 - Assignment 1 B
         2 - Assignment 2 A
-        4 - Assignment 1 B (TBA)
+        3 - Assignment 3 A
         """)
-        choice = input("Which question number: ")
+        choice = input("Which option number: ")
         try:
             choice = int(choice)
         except ValueError:
@@ -50,20 +50,17 @@ def main() -> None:
 
         if choice is not None:
             if choice == 0:
-                return
+                break
             elif choice == 1:
                 examples.assignment_1_b.main(ROOT_DIR)
-                return
             elif choice == 2:
                 examples.assignment_2_a.main(ROOT_DIR)
-                return
             elif choice == 3:
-                pass
+                examples.assignment_2_a.main(ROOT_DIR)
             else:
                 print("\nPlease enter a valid choice!")
+    quit_program()
 
 
 if __name__ == '__main__':
-    logging.info('Starting program')
     main()
-    raise quit_program()

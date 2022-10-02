@@ -23,13 +23,13 @@ def main(dir_: str = local_dir) -> None:
     if not dataset.load():
         raise Exception("Failed to load dataset")
 
-    run = True
-    while run:
-        print("""
+    use_best = True
+    while True:
+        print(f"""
         0 - Back
-        1 - Process Dataset (Includes EDA)
-        2 - Compare Estimators
-        3 - Compare Classifiers
+        1 - Use best param (Toggle) - {use_best}
+        1 - Find Estimator Params
+        2 - Find Classifier Params
         """)
         choice = input("Which option number: ")
         try:
@@ -42,11 +42,11 @@ def main(dir_: str = local_dir) -> None:
             if choice == 0:
                 return
             elif choice == 1:
-                examples.process.main(dataset)
+                use_best = not use_best
             elif choice == 2:
-                examples.compare_models.compareEstimators(dataset, config.random_state)
-            elif choice == 3:
-                examples.compare_models.compareClassifiers(dataset, config.random_state)
+                examples.find_params.findEstimatorParams(dataset, config)
+            elif choice == 2:
+                examples.find_params.findClassifierParams(dataset, config)
             else:
                 print("\nPlease enter a valid choice!")
 

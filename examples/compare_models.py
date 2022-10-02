@@ -153,6 +153,8 @@ def compareClassifiers(dataset: Dataset, random_state: int = None) -> None:
     dataset = examples.processDataset(dataset)
     dataset.apply(convertToCategorical)
 
+    X_train, X_test, y_train, y_test = dataset.split(random_state=random_state, shuffle=False)
+
     models = [('EGBC', ensemble.GradientBoostingClassifier(random_state=random_state)),
               ('ERFC', ensemble.RandomForestClassifier(random_state=random_state)),
               ('LMLR', linear_model.LogisticRegression(random_state=random_state)),
@@ -163,8 +165,6 @@ def compareClassifiers(dataset: Dataset, random_state: int = None) -> None:
               ('NNMLPC', neural_network.MLPClassifier(random_state=random_state)),
               ('SSVC', svm.SVC()),
               ('TDTC', tree.DecisionTreeClassifier(random_state=random_state))]
-
-    X_train, X_test, y_train, y_test = dataset.split(random_state=random_state, shuffle=False)
 
     scores = compareModels(models, X_train, y_train)
 
