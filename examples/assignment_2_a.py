@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import os
 
 import examples
@@ -42,11 +43,11 @@ def main(dir_: str = local_dir) -> None:
             if choice == 0:
                 return
             elif choice == 1:
-                examples.process.main(dataset)
+                examples.process.main(copy.deepcopy(dataset))
             elif choice == 2:
-                examples.compare_models.compareEstimators(dataset, config.random_state)
+                examples.compare_models.compareEstimators(copy.deepcopy(dataset), config.random_state)
             elif choice == 3:
-                examples.compare_models.compareClassifiers(dataset, config.random_state)
+                examples.compare_models.compareClassifiers(copy.deepcopy(dataset), config.random_state)
             else:
                 print("\nPlease enter a valid choice!")
 
