@@ -28,6 +28,7 @@ def preProcess(df: DataFrame) -> DataFrame:
     df = ml.handleMissingData(df)
 
     df['Date'] = pd.to_datetime(df['Date'])
+    df.set_index('Date', drop=False, inplace=True)
 
     logging.info(f"Pre-Processed dataset")
     return df
@@ -36,7 +37,7 @@ def preProcess(df: DataFrame) -> DataFrame:
 def exploratoryDataAnalysis(df: DataFrame) -> None:
     """
     Performs initial investigations on data to discover patterns, to spot
-    anomalies,to test hypothesis and to check assumptions with the help
+    anomalies, to test hypotheses and to check assumptions with the help
     of summary statistics and graphical representations.
 
     :param df: BSS dataset, should be a DataFrame
@@ -45,16 +46,20 @@ def exploratoryDataAnalysis(df: DataFrame) -> None:
     logging.info("Exploratory Data Analysis")
 
     plt.figure()
-    sns.heatmap(df.drop('Date', axis=1).corr(), annot=True)
+    sns.heatmap(df.corr(), annot=True)
     plt.title('Pre-Processed Corresponding Matrix')
 
-    # Line Plot
+    df_month = df.resample('MS').mean()
+    df_week = df.resample('W').mean()
+
     plt.figure()
-    plt.plot(df['Date'], df['Close'])
+    plt.plot(df_month.index, df_month['Close'], c='r', label='Monthly')
+    plt.plot(df_week.index, df_week['Close'], c='g', label='Weekly')
+    plt.plot(df.index, df['Close'], c='b', label='Daily')
     plt.title('BTC Stock Close')
     plt.xlabel('Date')
     plt.ylabel('Close ($USD)')
-    plt.show()
+    plt.legend()
 
     plt.show()  # displays all figures
 
@@ -71,9 +76,9 @@ def processData(df: DataFrame) -> DataFrame:
     :param df: BTC dataset, should be a DataFrame
     :return: df - DataFrame
     """
-    # Adapts the dataset for time series
-    df['Date'] = pd.to_datetime(df['Date'])
-    df.set_index('Date', inplace=True)
+    if 'Date' in df.columns:
+        df['Date'] = pd.to_datetime(df['Date'])
+        df.set_index('Date', inplace=True)
 
     # Adds historical data
     df.loc[:, 'prev'] = df.loc[:, 'Close'].shift()
@@ -125,6 +130,8 @@ def main(dataset: Dataset) -> None:
     dataset.apply(preProcess)
     dataset.update(name=(dataset_name + '-pre-processed'))
     dataset.save()
+
+    dataset.df.drop('Date', axis=1, inplace=True)
 
     exploratoryDataAnalysis(dataset.df)
 

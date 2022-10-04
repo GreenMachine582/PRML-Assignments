@@ -2,12 +2,8 @@ from __future__ import annotations
 
 import os
 
-import seaborn as sns
-from matplotlib import pyplot as plt
-from numpy import ndarray
 from pandas import DataFrame
 from sklearn import ensemble, linear_model, tree
-from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -18,47 +14,6 @@ from machine_learning import Config, Dataset
 
 # Constants
 local_dir = os.path.dirname(__file__)
-
-
-def plotPredictions(X_train: DataFrame, X_test: DataFrame, y_train: DataFrame, y_test: DataFrame,
-                    y_pred: ndarray) -> None:
-    """
-    Plots the BTC Close and predictions.
-
-    :param X_train: Training independent features, should be a DataFrame
-    :param X_test: Testing independent features, should be a DataFrame
-    :param y_train: Training independent features, should be a DataFrame
-    :param y_test: Testing dependent features, should be a DataFrame
-    :param y_pred: Predicted dependent variables, should be a ndarray
-    :return: None
-    """
-    # plots a line graph of BTC True and Predicted Close
-    plt.figure()
-    plt.plot(X_train.index, y_train, color='blue', label='Train')
-    plt.plot(X_test.index, y_test, color='green', label='Test')
-    plt.plot(X_test.index, y_pred, color='red', label='Predictions')
-    plt.title('BTC Close Vs Predictions')
-    plt.xlabel('Date')
-    plt.ylabel('Close ($USD)')
-    plt.legend()
-
-    plt.figure()
-    plt.plot(X_test.index, y_test, color='green', label='Test')
-    plt.plot(X_test.index, y_pred, color='red', label='Predictions')
-    plt.title('BTC Close Vs Predictions')
-    plt.xlabel('Date')
-    plt.ylabel('Close ($USD)')
-    plt.legend()
-    plt.show()
-
-
-def plotClassifications(y_test: DataFrame, name: str, y_preds: ndarray) -> None:
-    # TODO: Fix documentation
-    plt.figure()
-    df_cm = DataFrame(confusion_matrix(y_test, y_preds))
-    sns.heatmap(df_cm, square=True, annot=True, fmt='d', cbar=False)
-    plt.suptitle(f"BTC Close Classification Predictions - {name} - Confusion Matrix")
-    plt.show()
 
 
 def find_best_params(model: object | Pipeline, param_grid, X_train: DataFrame, y_train: DataFrame) -> object:
@@ -220,8 +175,8 @@ def findEstimatorParams(dataset: Dataset, config: Config) -> None:
                 model.save()
 
                 y_pred = model.predict(X_test)
-                ml.resultAnalysis(y_test, y_pred)
-                plotPredictions(X_train, X_test, y_train, y_test, y_pred)
+                examples.estimator.resultAnalysis(y_test, y_pred)
+                examples.estimator.plotPredictions(X_train, X_test, y_train, y_test, y_pred)
 
 
 def findClassifierParams(dataset: Dataset, config: Config) -> None:
@@ -280,5 +235,5 @@ def findClassifierParams(dataset: Dataset, config: Config) -> None:
                 model.save()
 
                 y_pred = model.predict(X_test)
-                ml.resultAnalysis(y_test, y_pred)
-                plotClassifications(y_test, model.name, y_pred)
+                examples.classifier.resultAnalysis(y_test, y_pred)
+                examples.classifier.plotClassifications(y_test, model.name, y_pred)

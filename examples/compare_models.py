@@ -71,29 +71,24 @@ def plotPredictions(X_train: DataFrame, X_test: DataFrame, y_train: DataFrame, y
     :param predictions: Predicted dependent variables, should be a list[tuple[str: ndarray]]
     :return: None
     """
-    # TODO: Fix documentation
-    # plots a line graph of BTC True and Predicted Close vs Date
+    # plots a line graph of BTC True and Predicted Close
     plt.figure()
     colour = iter(plt.cm.rainbow(np.linspace(0, 1, len(predictions) + 2)))
-    c = next(colour)
-    plt.plot(X_train.index, y_train, c=c, label='Train')
-    c = next(colour)
-    plt.plot(X_test.index, y_test, c=c, label='Test')
+    plt.plot(X_train.index, y_train, c=next(colour), label='Train')
+    plt.plot(X_test.index, y_test, c=next(colour), label='Test')
     for name, y_pred in predictions:
-        c = next(colour)
-        plt.plot(X_test.index, y_pred, c=c, label=f"{name} Predictions")
+        plt.plot(X_test.index, y_pred, c=next(colour), label=f"{name} Predictions")
     plt.title('BTC Predicted Close')
     plt.xlabel('Date')
     plt.ylabel('Close ($USD)')
     plt.legend()
 
+    # plots a closeup view if the test data and predictions
     plt.figure()
     colour = iter(plt.cm.rainbow(np.linspace(0, 1, len(predictions) + 2)))
-    c = next(colour)
-    plt.plot(X_test.index, y_test, c=c, label='Test')
+    plt.plot(X_test.index, y_test, c=next(colour), label='Test')
     for name, y_pred in predictions:
-        c = next(colour)
-        plt.plot(X_test.index, y_pred, c=c, label=f"{name} Predictions")
+        plt.plot(X_test.index, y_pred, c=next(colour), label=f"{name} Predictions")
     plt.title('BTC Predicted Close (Closeup)')
     plt.xlabel('Date')
     plt.ylabel('Close ($USD)')
@@ -102,6 +97,15 @@ def plotPredictions(X_train: DataFrame, X_test: DataFrame, y_train: DataFrame, y
 
 
 def compareEstimators(dataset: Dataset, random_state: int = None) -> None:
+    """
+    Cross-validates each estimator model then plots the fitting times
+    and test scores. Removes the poorly performing estimator then displays
+    a result analysis and plots predictions.
+
+    :param dataset:
+    :param random_state:
+    :return: None
+    """
     # TODO: Fix documentation
     dataset = examples.processDataset(dataset)
 
@@ -128,6 +132,7 @@ def compareEstimators(dataset: Dataset, random_state: int = None) -> None:
     plt.title('Algorithm Fit Time Comparison')
     plt.show()
 
+    # removes estimators that performed poorly
     del results['KNR']
     del results['MLPR']
     del results['SVR']
@@ -152,25 +157,6 @@ def compareEstimators(dataset: Dataset, random_state: int = None) -> None:
     plotEstimatorResultAnalysis(y_test, predictions)
 
     plotPredictions(X_train, X_test, y_train, y_test, predictions)
-
-
-def convertToCategorical(df: DataFrame) -> DataFrame:
-    """
-    Encodes the BTC Target into a binary category where,
-    0 represents a fall in price from previous instance
-    1 represents a rise in price from previous instance.
-
-    :param df: The BTC dataset, should be a DataFrame
-    :return: df - DataFrame
-    """
-    df['Close'] = [0 if df['diff'][i] < 0 else 1 for i in range(len(df['Close']))]
-
-    # Checks for class imbalance
-    if len(df['Close'] == 0) != len(df['Close'] == 1):
-        logging.warning("Class imbalance is present")
-
-    df['Close'] = df['Close'].astype("category")
-    return df
 
 
 def plotClassifierResultAnalysis(y_test, predictions):
@@ -223,9 +209,10 @@ def plotClassifications(y_test: DataFrame, names: list, predictions: list) -> No
 def compareClassifiers(dataset: Dataset, random_state: int = None) -> None:
     # TODO: Fix documentation
     dataset = examples.processDataset(dataset)
-    dataset.apply(convertToCategorical)
+    dataset.apply(examples.convertToCategorical)
 
     X_train, X_test, y_train, y_test = dataset.split(train_size=0.1, random_state=random_state, shuffle=False)
+
 
     models = {'GBC': ensemble.GradientBoostingClassifier(random_state=random_state),
               'RFC': ensemble.RandomForestClassifier(random_state=random_state),

@@ -3,10 +3,7 @@ from __future__ import annotations
 import logging
 import os
 
-import numpy as np
-from numpy import ndarray
 from pandas import DataFrame
-from sklearn import metrics
 from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
 
 from . import utils
@@ -64,31 +61,6 @@ def gridSearch(model: object, param_grid: dict | list, **kwargs) -> GridSearchCV
     defaults = {'n_jobs': -1, 'cv': 10, 'verbose': 2, 'return_train_score': True}
     grid_search = GridSearchCV(model, param_grid, **dict(defaults, **kwargs))
     return grid_search
-
-
-def resultAnalysis(y_test: DataFrame, y_pred: ndarray) -> None:
-    """
-    Calculates and displays the result analysis
-
-    :param y_test: Testing dependent variables, should be a DataFrame
-    :param y_pred: Model predictions, should be a ndarray
-    :return: None
-    """
-    # TODO: Separate classified and estimated predictions.
-    logging.info("Analysing results")
-
-    explained_variance = metrics.explained_variance_score(y_test, y_pred)
-    mean_squared_log_error = metrics.mean_squared_log_error(y_test, y_pred)
-    r2 = metrics.r2_score(y_test, y_pred)
-    mae = metrics.mean_absolute_error(y_test, y_pred)
-    mse = metrics.mean_squared_error(y_test, y_pred)
-
-    print('explained_variance: %.4f' % explained_variance)
-    print('mean_squared_log_error: %.4f' % mean_squared_log_error)
-    print('r2: %.4f' % r2)
-    print('MAE: %.4f' % mae)
-    print('MSE: %.4f' % mse)
-    print('RMSE: %.4f' % np.sqrt(mse))
 
 
 class Model(object):
@@ -163,22 +135,3 @@ class Model(object):
         cv_results = gridSearch(self.model, param_grid, cv=TimeSeriesSplit(10))
         cv_results.fit(X, y)
         return cv_results
-
-    def fit(self, X_train: DataFrame, y_train: DataFrame) -> None:
-        """
-        Fitting the model with provided training data.
-
-        :param X_train: Training independent features, should be a DataFrame
-        :param y_train: Training dependent variables, should be a DataFrame
-        :return: None
-        """
-        self.model.fit(X_train, y_train)
-
-    def predict(self, X_test: DataFrame) -> ndarray:
-        """
-        Forms predictions using the model and testing data.
-
-        :param X_test: Testing independent features, should be a DataFrame
-        :return: y_pred - ndarray
-        """
-        return self.model.predict(X_test)

@@ -12,6 +12,7 @@ from sklearn.metrics import confusion_matrix, classification_report, ConfusionMa
 from sklearn.linear_model import LogisticRegression
 from sklearn.decomposition import PCA
 
+import examples
 import machine_learning as ml
 
 
@@ -160,7 +161,7 @@ def resultAnalysis(model: Any, X: DataFrame, X_test: DataFrame, y_test: DataFram
 
     print(classification_report(y_test, y_pred))
 
-    ml.resultAnalysis(y_test, y_pred)
+    examples.estimator.resultAnalysis(y_test, y_pred)
 
 
 def main(dir_=local_dir):
