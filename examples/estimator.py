@@ -7,7 +7,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from numpy import ndarray
 from pandas import DataFrame
-from sklearn.metrics import explained_variance_score, mean_squared_log_error, r2_score, mean_absolute_error, mean_squared_error
+from sklearn.metrics import explained_variance_score, mean_squared_log_error, r2_score, mean_absolute_error,\
+    mean_squared_error
 
 # Constants
 local_dir = os.path.dirname(__file__)
@@ -54,7 +55,6 @@ def resultAnalysis(y_test: DataFrame, y_pred: ndarray, show: bool = True) -> dic
     :param show: Whether to show the results, should be a bool
     :return: results - dict[str: float]
     """
-    # TODO: Separate classified and estimated predictions.
     logging.info("Analysing results")
 
     results = {'explained_variance': explained_variance_score(y_test, y_pred),

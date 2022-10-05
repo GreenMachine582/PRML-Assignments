@@ -35,7 +35,14 @@ def convertToCategorical(df: DataFrame) -> DataFrame:
 
 
 def plotClassifications(y_test: DataFrame, name: str, y_preds: ndarray) -> None:
-    # TODO: Fix documentation
+    """
+    Plots the predictions in a confusion matrix format.
+
+    :param y_test: Testing dependent variables, should be a DataFrame
+    :param name: Classifier's name, should be a str
+    :param y_preds: Classifier predictions, should be a ndarray
+    :return: None
+    """
     plt.figure()
     df_cm = DataFrame(confusion_matrix(y_test, y_preds))
     sns.heatmap(df_cm, square=True, annot=True, fmt='d', cbar=False)
@@ -45,14 +52,13 @@ def plotClassifications(y_test: DataFrame, name: str, y_preds: ndarray) -> None:
 
 def resultAnalysis(y_test: DataFrame, y_pred: ndarray, show: bool = True) -> dict:
     """
-    Calculates and displays the result analysis for estimators.
+    Calculates and displays the result analysis for classifiers.
 
     :param y_test: Testing dependent variables, should be a DataFrame
     :param y_pred: Model predictions, should be a ndarray
     :param show: Whether to show the results, should be a bool
     :return: results - dict[str: float]
     """
-    # TODO: Separate classified and estimated predictions.
     logging.info("Analysing results")
 
     results = {'explained_variance': explained_variance_score(y_test, y_pred),
