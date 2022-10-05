@@ -45,13 +45,14 @@ def load(dir_: str, name: str, names: list = None, target: str = 'target', sep: 
 
     path_, exist = utils.checkPath(dir_, name)
     if not exist:
+        logging.info("Fetching dataset from openml")
         try:
             fetched_dataset = fetch_openml(name.replace('.csv', ''), version=1)
         except Exception as e:
-            logging.warning(f"Path '{path_}' does not exist")
             logging.warning(e)
+            logging.warning(f"Path '{path_}' does not exist")
             return
-        logging.info("Fetched dataset from openml")
+        logging.info("Fetched")
         df = bunchToDataframe(fetched_dataset, target)
         utils.makePath(dir_)
         save(dir_, name, df, sep=sep)
@@ -143,8 +144,7 @@ class Dataset(object):
 
     def update(self, **kwargs) -> None:
         """
-        Updates the instance attributes, if given attributes are present
-        in instance and match existing types.
+        Updates the instance attributes.
 
         :key df: The dataset itself, should be a DataFrame
         :key dir_: Dataset's path directory, should be a str
@@ -155,16 +155,7 @@ class Dataset(object):
         :key train_size: Train and test split ratio, should be a float
         :return: None
         """
-        for key, value in kwargs.items():
-            if not hasattr(self, key):
-                logging.error(f"'{self.__class__.__name__}' object has no attribute '{key}'")
-            else:
-                attr_ = getattr(self, key)
-                if isinstance(attr_, (type(value), type(None))):
-                    setattr(self, key, value)
-                else:
-                    logging.error(f"'{key}': got '{type(value).__name__}' but expected type is "
-                                  f"'{type(attr_).__name__}'")
+        utils.update(self, kwargs)
         logging.info(f"Updated dataset '{self.name}' attributes")
 
     def load(self) -> bool:
@@ -214,7 +205,7 @@ class Dataset(object):
             self.df = results
         elif isinstance(results, tuple) and len(results) >= 1 and isinstance(results[0], DataFrame):
             self.df = results[0]
-        elif isinstance(results, dict) and 'df' in results and (results['df'], DataFrame):
+        elif isinstance(results, dict) and 'df' in results and isinstance(results['df'], DataFrame):
             self.df = results['df']
         else:
             logging.warning(f"'DataFrame' object was expected, got '{type(results)}'")

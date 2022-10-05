@@ -81,24 +81,14 @@ class Model(object):
 
     def update(self, **kwargs) -> None:
         """
-        Updates the instance attributes, if given attributes are present
-        in instance and match existing types.
+        Updates the instance attributes.
 
         :key model: Model's classifier or estimator, should be an object
         :key dir_: Model's path directory, should be a str
         :key name: Model's name, should be a str
         :return: None
         """
-        for key, value in kwargs.items():
-            if not hasattr(self, key):
-                logging.error(f"'{self.__class__.__name__}' object has no attribute '{key}'")
-            else:
-                attr_ = getattr(self, key)
-                if isinstance(attr_, (type(value), type(None))):
-                    setattr(self, key, value)
-                else:
-                    logging.error(f"'{key}': got '{type(value).__name__}' but expected type is "
-                                  f"'{type(attr_).__name__}'")
+        utils.update(self, kwargs)
         logging.info(f"Updated model '{self.name}' attributes")
 
     def load(self) -> bool:

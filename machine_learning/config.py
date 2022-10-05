@@ -30,7 +30,7 @@ class Config(object):
                         'name': name,
                         'sep': ',',
                         'names': [],
-                        'target': 'Close',
+                        'target': 'target',
                         'train_size': 0.8}
 
         # Default configuration for Model
@@ -44,8 +44,7 @@ class Config(object):
 
     def update(self, **kwargs) -> None:
         """
-        Updates the instance attributes, if given attributes are present
-        in instance and match existing types.
+        Updates the instance attributes.
 
         :key dir_: dataset's path directory, should be a str
         :key name: dataset's name, should be a str
@@ -53,16 +52,7 @@ class Config(object):
         :key model: config for model, should be a dict
         :return: None
         """
-        for key, value in kwargs.items():
-            if not hasattr(self, key):
-                logging.error(f"'{self.__class__.__name__}' object has no attribute '{key}'")
-            else:
-                attr_ = getattr(self, key)
-                if isinstance(attr_, (type(value), type(None))):
-                    setattr(self, key, value)
-                else:
-                    logging.error(f"'{key}': got '{type(value).__name__}' but expected type is "
-                                  f"'{type(attr_).__name__}'")
+        utils.update(self, kwargs)
         logging.info(f"Updated config '{self.name}' attributes")
 
     def load(self) -> bool:
@@ -72,7 +62,7 @@ class Config(object):
         :return: completed - bool
         """
         name = utils.joinPath(self.name, ext='.json')
-        data = utils.load(self.dir_, name)
+        data = utils.load(self.dir_, name, errors='ignore')
         if data is None:
             logging.warning(f"Failed to load config '{self.name}'")
             return False
