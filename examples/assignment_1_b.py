@@ -34,7 +34,6 @@ def processData(df: DataFrame, target) -> DataFrame:
     df[target] = df[target].astype('category')
 
     x = df.drop(target, axis=1)  # denotes independent features
-    y = df[target]  # denotes dependent variables
 
     print(df.axes)
     print(df.head())
@@ -180,7 +179,7 @@ def main(dir_=local_dir):
 
     model = ml.Model(config.model, model=LogisticRegression(solver="lbfgs", max_iter=100))
 
-    model.fit(X_train, y_train)
+    model.model.fit(X_train, y_train)
     model.save()
 
     resultAnalysis(model.model, X, X_test, y_test)
