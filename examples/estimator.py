@@ -6,7 +6,7 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 from numpy import ndarray
-from pandas import DataFrame
+from pandas import DataFrame, Series
 from sklearn.metrics import explained_variance_score, mean_squared_log_error, r2_score, mean_absolute_error,\
     mean_squared_error
 
@@ -14,19 +14,18 @@ from sklearn.metrics import explained_variance_score, mean_squared_log_error, r2
 local_dir = os.path.dirname(__file__)
 
 
-def plotPredictions(X_train: DataFrame, X_test: DataFrame, y_train: DataFrame, y_test: DataFrame,
+def plotPredictions(X_train: DataFrame, X_test: DataFrame, y_train: Series, y_test: Series,
                     y_pred: ndarray) -> None:
     """
-    Plots the BTC daily Close and predictions.
+    Plots a line graph of BTC True and Predicted Close.
 
     :param X_train: Training independent features, should be a DataFrame
     :param X_test: Testing independent features, should be a DataFrame
-    :param y_train: Training independent features, should be a DataFrame
-    :param y_test: Testing dependent features, should be a DataFrame
+    :param y_train: Training independent features, should be a Series
+    :param y_test: Testing dependent features, should be a Series
     :param y_pred: Predicted dependent variables, should be a ndarray
     :return: None
     """
-    # plots a line graph of BTC True and Predicted Close
     plt.figure()
     plt.plot(X_train.index, y_train, c='b', label='Train')
     plt.plot(X_test.index, y_test, c='r', label='Test')
@@ -46,11 +45,11 @@ def plotPredictions(X_train: DataFrame, X_test: DataFrame, y_train: DataFrame, y
     plt.show()
 
 
-def resultAnalysis(y_test: DataFrame, y_pred: ndarray, show: bool = True) -> dict:
+def resultAnalysis(y_test: Series, y_pred: ndarray, show: bool = True) -> dict:
     """
     Calculates and displays the result analysis for estimators.
 
-    :param y_test: Testing dependent variables, should be a DataFrame
+    :param y_test: Testing dependent variables, should be a Series
     :param y_pred: Model predictions, should be a ndarray
     :param show: Whether to show the results, should be a bool
     :return: results - dict[str: float]

@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import logging
-import os
 
 from matplotlib import pyplot as plt
 from numpy import linspace
-from pandas import DataFrame
+from pandas import DataFrame, Series
 from seaborn import heatmap
 from sklearn import ensemble, neighbors, neural_network, svm, tree, linear_model
 from sklearn.metrics import confusion_matrix
@@ -14,18 +13,15 @@ from sklearn.model_selection import TimeSeriesSplit, cross_validate
 import examples
 from machine_learning import Dataset
 
-# Constants
-local_dir = os.path.dirname(__file__)
 
-
-def compareModels(models: dict, X_train: DataFrame, y_train: DataFrame) -> dict:
+def compareModels(models: dict, X_train: DataFrame, y_train: Series) -> dict:
     """
-    Cross validates each model with a time series split and plots comparison
+    Cross validate each model with a time series split and plots comparison
     graphs of test scores and fitting times.
 
     :param models: The models to be compared, should be a dict[str: Any]
     :param X_train: Training independent features, should be a DataFrame
-    :param y_train: Training dependent variables, should be a DataFrame
+    :param y_train: Training dependent variables, should be a Series
     :return: results - dict[str: Any]
     """
     results = {}
@@ -46,7 +42,7 @@ def compareModels(models: dict, X_train: DataFrame, y_train: DataFrame) -> dict:
 
 def _plotBox(ax, results: dict, target: str, title: str = ''):
     """
-    Plots a boxplot and title to the given figure or axes.
+    Plot a boxplot and title to the given figure or axes.
 
     :param ax: Can be the figure or and axes
     :param results: Results from compareModels, should be a dict[str: dict[str: ndarray]]
@@ -62,7 +58,7 @@ def _plotBox(ax, results: dict, target: str, title: str = ''):
 
 def _plotBar(ax, x: list, y: list, title: str = ''):
     """
-    Plots a bar graph and title to the given figure or axes.
+    Plot a bar graph and title to the given figure or axes.
 
     :param ax: Can be the figure or and axes
     :param x: X-axis labels, should be a list[str]
@@ -76,11 +72,11 @@ def _plotBar(ax, x: list, y: list, title: str = ''):
     return ax
 
 
-def plotEstimatorResultAnalysis(y_test, predictions):
+def plotEstimatorResultAnalysis(y_test: Series, predictions: list) -> None:
     """
-    Plots the results analysis bar graph for each estimator.
+    Plot the results analysis bar graph for each estimator.
 
-    :param y_test: Testing dependent variables, should be a DataFrame
+    :param y_test: Testing dependent variables, should be a Series
     :param predictions: Estimator predictions, should be a list[tuple[str, ndarray]]
     :return: None
     """
@@ -100,15 +96,15 @@ def plotEstimatorResultAnalysis(y_test, predictions):
     plt.show()
 
 
-def plotPredictions(X_train: DataFrame, X_test: DataFrame, y_train: DataFrame, y_test: DataFrame,
+def plotPredictions(X_train: DataFrame, X_test: DataFrame, y_train: Series, y_test: Series,
                     predictions: list) -> None:
     """
-    Plots the BTC daily Close and predictions.
+    Plot the BTC daily Close and predictions.
 
     :param X_train: Training independent features, should be a DataFrame
     :param X_test: Testing independent features, should be a DataFrame
-    :param y_train: Training independent features, should be a DataFrame
-    :param y_test: Testing dependent features, should be a DataFrame
+    :param y_train: Training independent features, should be a Series
+    :param y_test: Testing dependent features, should be a Series
     :param predictions: Predicted dependent variables, should be a list[tuple[str: ndarray]]
     :return: None
     """
@@ -139,11 +135,11 @@ def plotPredictions(X_train: DataFrame, X_test: DataFrame, y_train: DataFrame, y
 
 def compareEstimators(dataset: Dataset, random_state: int = None) -> None:
     """
-    Cross validates the estimators with a time series split then compares
+    Cross validate the estimators with a time series split then compares
     fitting times, test scores, results analyses and plots predicted
     estimations.
 
-    :param dataset: BTC dataset, should be a Dataset
+    :param dataset: The loaded dataset, should be a Dataset
     :param random_state: Controls the random seed, should be an int
     :return: None
     """
@@ -183,17 +179,17 @@ def compareEstimators(dataset: Dataset, random_state: int = None) -> None:
     plotPredictions(X_train, X_test, y_train, y_test, predictions)
 
 
-def plotClassifierResultAnalysis(y_test: DataFrame, predictions: list) -> None:
+def plotClassifierResultAnalysis(y_test: Series, predictions: list) -> None:
     """
-    Plots the results analysis bar graph for each classifier.
+    Plot the results analysis bar graph for each classifier.
 
-    :param y_test: Testing dependent variables, should be a DataFrame
+    :param y_test: Testing dependent variables, should be a Series
     :param predictions: Classifiers predictions, should be a list[tuple[str, ndarray]]
     :return: None
     """
     results, labels = {}, []
     for name, y_pred in predictions:
-        results[name] = examples.classifier.resultAnalysis(y_test, y_pred)
+        results[name] = examples.classifier.resultAnalysis(y_test, y_pred, show=False)
         labels.append(name)
 
     fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, sharex='row')
@@ -205,11 +201,11 @@ def plotClassifierResultAnalysis(y_test: DataFrame, predictions: list) -> None:
     plt.show()
 
 
-def plotClassifications(y_test: DataFrame, names: list, predictions: list) -> None:
+def plotClassifications(y_test: Series, names: list, predictions: list) -> None:
     """
-    Plots confusion matrices to compare the classifiers predictions.
+    Plot confusion matrices to compare the classifiers predictions.
 
-    :param y_test: Testing dependent variables, should be a DataFrame
+    :param y_test: Testing dependent variables, should be a Series
     :param names: The classifiers names, should be a list[str]
     :param predictions: The classifiers predictions, should be a list[ndarray]
     :return: None
@@ -232,22 +228,22 @@ def plotClassifications(y_test: DataFrame, names: list, predictions: list) -> No
     df_cm = DataFrame(confusion_matrix(y_test, predictions[3]))
     heatmap(df_cm, square=True, annot=True, fmt='d', cbar=False, ax=ax4)
     ax4.set_ylabel(f"{names[3]}", fontsize=14)
-    plt.suptitle("BTC Close Classification Predictions - Confusion Matrices")
+    plt.suptitle("BTC Close Classification Predictions (Up or Down) - Confusion Matrices")
     plt.show()
 
 
 def compareClassifiers(dataset: Dataset, random_state: int = None) -> None:
     """
-    Cross validates the classifiers with a time series split then compares
+    Cross validate the classifiers with a time series split then compares
     fitting times, test scores, results analyses and plots predicted
     classifications.
 
-    :param dataset: BTC dataset, should be a Dataset
+    :param dataset: The loaded dataset, should be a Dataset
     :param random_state: Controls the random seed, should be an int
     :return: None
     """
     dataset = examples.processDataset(dataset)
-    dataset.apply(examples.convertToCategorical)
+    dataset.apply(examples.convertToCategorical, dataset.target)
 
     X_train, X_test, y_train, y_test = dataset.split(train_size=0.1, random_state=random_state, shuffle=False)
 

@@ -13,7 +13,7 @@ class Config(object):
 
     def __init__(self, dir_: str, name: str, **kwargs) -> None:
         """
-        Create an instance of Dataset
+        Create an instance of Dataset.
 
         :param dir_: dataset's path directory, should be a str
         :param name: dataset's name, should be a str
@@ -44,7 +44,7 @@ class Config(object):
 
     def update(self, **kwargs) -> None:
         """
-        Updates the instance attributes.
+        Update the instance attributes.
 
         :key dir_: dataset's path directory, should be a str
         :key name: dataset's name, should be a str
@@ -57,7 +57,7 @@ class Config(object):
 
     def load(self) -> bool:
         """
-        Loads the config file and updates the object attributes.
+        Load the config file and updates the object attributes.
 
         :return: completed - bool
         """
@@ -71,7 +71,7 @@ class Config(object):
 
     def save(self) -> bool:
         """
-        Saves the config attributes as an indented dict in a json file, to allow
+        Save the config attributes as an indented dict in a json file, to allow
         users to edit and easily view the default configs.
 
         :return: completed - bool

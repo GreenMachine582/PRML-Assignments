@@ -10,7 +10,7 @@ from typing import Any
 
 def checkPath(path_: str, *paths, ext: str = '') -> tuple:
     """
-    Joins the paths together, adds an extension if not already included
+    Join the paths together, adds an extension if not already included
     in path, then checks if path exists.
 
     :param path_: main file path, should be a str
@@ -25,7 +25,7 @@ def checkPath(path_: str, *paths, ext: str = '') -> tuple:
 
 def joinPath(path_: str, *paths, ext: str = '') -> str:
     """
-    Joins the paths together, adds an extension if not already included
+    Join the paths together, adds an extension if not already included
     in path.
 
     :param path_: Main file path, should be a str
@@ -41,7 +41,7 @@ def joinPath(path_: str, *paths, ext: str = '') -> str:
 
 def makePath(path_: str, *paths) -> str:
     """
-    Checks if the path exists and creates the path when required.
+    Check if the path exists and creates the path when required.
 
     :param path_: Main file path, should be a str
     :param paths: Remaining file paths, should be a tuple[str]
@@ -55,7 +55,7 @@ def makePath(path_: str, *paths) -> str:
 
 def update(obj: object, kwargs: dict) -> object:
     """
-    Updates the objects attributes, if given attributes are present
+    Update the objects attributes, if given attributes are present
     in object and match existing data types.
 
     :param obj: The object that is being updated, should be an object
@@ -77,7 +77,7 @@ def update(obj: object, kwargs: dict) -> object:
 
 def load(dir_: str, name: str, errors: str = 'raise') -> Any:
     """
-    Loads the data with appropriate method. Pickle will deserialise the
+    Load the data with appropriate method. Pickle will deserialise the
     contents of the file and json will load the contents.
 
     :param dir_: Directory of file, should be a str
@@ -113,7 +113,7 @@ def load(dir_: str, name: str, errors: str = 'raise') -> Any:
 
 def save(dir_: str, name: str, data: Any, indent: int = 4, errors: str = 'raise') -> bool:
     """
-    Saves the data with appropriate method. Pickle will serialise the
+    Save the data with appropriate method. Pickle will serialise the
     object, while json will dump the data with indenting to allow users
     to edit and easily view the encoded data.
 

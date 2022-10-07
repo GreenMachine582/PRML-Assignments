@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import logging
 import os
+from typing import Any
 
-from pandas import DataFrame
+from pandas import DataFrame, Series
 from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
 
 from . import utils
@@ -11,7 +12,7 @@ from . import utils
 
 def load(dir_: str, name: str) -> object:
     """
-    Loads the model from a model file.
+    Load the model from a model file.
 
     :param dir_: Directory path of file, should be a str
     :param name: Name of file, should be a str
@@ -30,7 +31,7 @@ def load(dir_: str, name: str) -> object:
 
 def save(dir_: str, name: str, model: object) -> bool:
     """
-    Saves the model to a model file.
+    Save the model to a model file.
 
     :param dir_: Directory path of file, should be a str
     :param name: Name of file, should be a str
@@ -73,7 +74,7 @@ class Model(object):
         :param kwargs: Additional keywords to pass to update
         :return: None
         """
-        self.model: object = None
+        self.model: Any = None
         self.dir_: str = ''
         self.name: str = ''
 
@@ -81,7 +82,7 @@ class Model(object):
 
     def update(self, **kwargs) -> None:
         """
-        Updates the instance attributes.
+        Update the instance attributes.
 
         :key model: Model's classifier or estimator, should be an object
         :key dir_: Model's path directory, should be a str
@@ -93,7 +94,7 @@ class Model(object):
 
     def load(self) -> bool:
         """
-        Loads the model.
+        Load the model.
 
         :return: completed - bool
         """
@@ -105,21 +106,21 @@ class Model(object):
 
     def save(self) -> bool:
         """
-        Saves the model.
+        Save the model.
 
         :return: completed - bool
         """
         utils.makePath(self.dir_)
         return save(self.dir_, self.name, self.model)
 
-    def gridSearch(self, param_grid: dict | list, X: DataFrame, y: DataFrame) -> GridSearchCV:
+    def gridSearch(self, param_grid: dict | list, X: DataFrame, y: Series) -> GridSearchCV:
         """
         Grid searches the model then fits with given data.
 
         :param param_grid: Enables searching over any sequence of parameter settings, should be a
          dict[str] | list[dict[str: Any]]
         :param X: Independent features, should be a DataFrame
-        :param y: Dependent variables, should be a DataFrame
+        :param y: Dependent variables, should be a Series
         :return: results_cv - GridSearchCV
         """
         cv_results = gridSearch(self.model, param_grid, cv=TimeSeriesSplit(10))

@@ -4,7 +4,7 @@ import logging
 import os
 
 import pandas as pd
-from pandas import DataFrame
+from pandas import DataFrame, Series
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.utils import Bunch
@@ -14,7 +14,7 @@ from . import utils
 
 def bunchToDataframe(fetched_df: Bunch, target: str = 'target') -> DataFrame | None:
     """
-    Creates a pandas DataFrame dataset from the SKLearn Bunch object.
+    Create a pandas DataFrame dataset from the SKLearn Bunch object.
 
     :param fetched_df: Dataset fetched from openml, should be a Bunch
     :param target: Dataset's target feature, should be a str
@@ -64,7 +64,7 @@ def load(dir_: str, name: str, names: list = None, target: str = 'target', sep: 
 
 def save(dir_: str, name: str, df: DataFrame, sep: str = ',') -> bool:
     """
-    Saves the dataset to a csv file using pandas.
+    Save the dataset to a csv file using pandas.
 
     :param dir_: Directory path of file, should be a str
     :param name: Name of file, should be a str
@@ -82,14 +82,14 @@ def save(dir_: str, name: str, df: DataFrame, sep: str = ',') -> bool:
     return True
 
 
-def split(X: DataFrame, y: DataFrame, **kwargs) -> tuple:
+def split(X: DataFrame, y: Series, **kwargs) -> tuple:
     """
-    Splits the datasets into two smaller datasets with given ratio.
+    Split the datasets into two smaller datasets with given ratio.
 
     :param X: independent features, should be a DataFrame
-    :param y: dependent variables, should be a DataFrame
+    :param y: dependent variables, should be a Series
     :param kwargs: Additional keywords to pass to train_test_split
-    :return: X_train, X_test, y_train, y_test - tuple(DataFrame)
+    :return: X_train, X_test, y_train, y_test - tuple[DataFrame, DataFrame, Series, Series]
     """
     defaults = {'train_size': 0.8}
     X_train, X_test, y_train, y_test = train_test_split(X, y, **dict(defaults, **kwargs))
@@ -100,7 +100,7 @@ def split(X: DataFrame, y: DataFrame, **kwargs) -> tuple:
 
 def handleMissingData(df: DataFrame, fill: bool = True) -> DataFrame:
     """
-    Handles missing values by forward and backward value filling, this is a common
+    Handle missing values by forward and backward value filling, this is a common
     strategy for datasets with time series. Instances with remaining missing values
     will be dropped.
 
@@ -144,7 +144,7 @@ class Dataset(object):
 
     def update(self, **kwargs) -> None:
         """
-        Updates the instance attributes.
+        Update the instance attributes.
 
         :key df: The dataset itself, should be a DataFrame
         :key dir_: Dataset's path directory, should be a str
@@ -160,7 +160,7 @@ class Dataset(object):
 
     def load(self) -> bool:
         """
-        Loads the dataset.
+        Load the dataset.
 
         :return: completed - bool
         """
@@ -174,7 +174,7 @@ class Dataset(object):
 
     def save(self) -> bool:
         """
-        Saves the dataset.
+        Save the dataset.
 
         :return: completed - bool
         """
@@ -188,7 +188,7 @@ class Dataset(object):
 
     def apply(self, func: callable, *args, **kwargs) -> DataFrame | tuple | dict:
         """
-        Applies the given function to the dataset with given arguments
+        Apply the given function to the dataset with given arguments
         and keywords.
 
         :param func: Function to apply to the dataset, should be a callable
@@ -213,10 +213,10 @@ class Dataset(object):
 
     def split(self, **kwargs) -> tuple:
         """
-        Splits the dataset into train and test datasets.
+        Split the dataset into train and test datasets.
 
         :param kwargs: Additional keywords to pass to train_test_split
-        :return: X_train, X_test, y_train, y_test - tuple[DataFrame]
+        :return: X_train, X_test, y_train, y_test - tuple[DataFrame, DataFrame, Series, Series]
         """
         X, y = self.getIndependent(), self.getDependent()
         defaults = {'train_size': self.train_size}
@@ -224,16 +224,16 @@ class Dataset(object):
 
     def getIndependent(self) -> DataFrame:
         """
-        Gets the independent features.
+        Get the independent features.
 
         :return: independent - DataFrame
         """
         return self.df.drop(self.target, axis=1)
 
-    def getDependent(self) -> DataFrame:
+    def getDependent(self) -> Series:
         """
-        Gets the dependent variables.
+        Get the dependent variables.
 
-        :return: dependent - DataFrame
+        :return: dependent - Series
         """
         return self.df[self.target]

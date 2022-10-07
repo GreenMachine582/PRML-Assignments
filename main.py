@@ -56,7 +56,7 @@ def main() -> None:
             elif choice == 2:
                 examples.assignment_2_a.main(ROOT_DIR)
             elif choice == 3:
-                examples.assignment_2_a.main(ROOT_DIR)
+                examples.assignment_3_a.main(ROOT_DIR)
             else:
                 print("\nPlease enter a valid choice!")
     quit_program()
