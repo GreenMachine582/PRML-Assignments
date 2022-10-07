@@ -81,10 +81,10 @@ def processData(df: DataFrame) -> DataFrame:
         df.set_index('Date', inplace=True)
 
     # Adds historical data
-    df.loc[:, 'prev'] = df.loc[:, 'Close'].shift()
-    df.loc[:, 'diff'] = df.loc[:, 'prev'].diff()
-    df.loc[:, 'prev-2'] = df.loc[:, 'prev'].shift()
-    df.loc[:, 'diff-2'] = df.loc[:, 'prev-2'].diff()
+    df['prev'] = df['Close'].shift()
+    df['diff'] = df['Close'].diff()
+    df['prev-2'] = df['prev'].shift()
+    df['diff-2'] = df['prev'].diff()
 
     df = ml.handleMissingData(df)
 
@@ -120,10 +120,9 @@ def main(dataset: Dataset) -> None:
     """
     Pre-processes and Processes the datasets.
 
-    :param dataset:
+    :param dataset: The loaded dataset, should be a Dataset
     :return: None
     """
-    # TODO: Fix documentation
     dataset_name = dataset.name
     print(dataset.df.shape)
     print(dataset.df.head())
