@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import os
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -12,9 +11,6 @@ import machine_learning as ml
 from machine_learning import Dataset
 
 sns.set(style='darkgrid')
-
-# Constants
-local_dir = os.path.dirname(__file__)
 
 
 def preProcess(df: DataFrame) -> DataFrame:

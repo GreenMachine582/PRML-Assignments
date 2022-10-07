@@ -243,9 +243,9 @@ def compareClassifiers(dataset: Dataset, random_state: int = None) -> None:
     :return: None
     """
     dataset = examples.processDataset(dataset)
-    dataset.apply(examples.convertToCategorical, dataset.target)
+    dataset.apply(examples.binaryEncode, dataset.target)
 
-    X_train, X_test, y_train, y_test = dataset.split(train_size=0.1, random_state=random_state, shuffle=False)
+    X_train, X_test, y_train, y_test = dataset.split(train_size=0.15, random_state=random_state, shuffle=False)
 
     models = {'GBC': ensemble.GradientBoostingClassifier(random_state=random_state),
               'RFC': ensemble.RandomForestClassifier(random_state=random_state),

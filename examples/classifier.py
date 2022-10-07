@@ -9,7 +9,7 @@ from seaborn import heatmap
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 
 
-def convertToCategorical(df: DataFrame, target: str) -> DataFrame:
+def binaryEncode(df: DataFrame, target: str) -> DataFrame:
     """
     Encodes the target into a binary category where,
     0 represents a decrease from previous instance

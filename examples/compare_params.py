@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import os
+from typing import Any
 
 from pandas import DataFrame
 from sklearn import ensemble, linear_model, tree
@@ -12,11 +12,8 @@ import examples
 import machine_learning as ml
 from machine_learning import Config, Dataset
 
-# Constants
-local_dir = os.path.dirname(__file__)
 
-
-def find_best_params(model: object | Pipeline, param_grid, X_train: DataFrame, y_train: DataFrame) -> object:
+def find_best_params(model: Any | Pipeline, param_grid, X_train: DataFrame, y_train: DataFrame) -> Any:
     # TODO: Fix documentation
     cv_results = GridSearchCV(model, param_grid, n_jobs=-1, cv=TimeSeriesSplit(10), verbose=2)
     cv_results.fit(X_train, y_train)
@@ -121,8 +118,13 @@ def getDecisionTreeClassifier(best_params: bool = False):
 
 
 def findEstimatorParams(dataset: Dataset, config: Config) -> None:
-    dataset = examples.processDataset(dataset)
+    """
 
+    :param dataset: The loaded and processed dataset, should be a Dataset
+    :param config:
+    :return: None
+    """
+    # TODO: documentation
     X_train, X_test, y_train, y_test = dataset.split(random_state=config.random_state, shuffle=False)
 
     best = False
@@ -171,17 +173,23 @@ def findEstimatorParams(dataset: Dataset, config: Config) -> None:
             if choice in [2, 3, 4, 5]:
                 best_estimator = find_best_params(estimator, param_grid, X_train, y_train)
                 model = ml.Model(config.model, model=best_estimator)
-                model.fit(X_train, y_train)
+                model.model.fit(X_train, y_train)
                 model.save()
 
-                y_pred = model.predict(X_test)
+                y_pred = model.model.predict(X_test)
                 examples.estimator.resultAnalysis(y_test, y_pred)
-                examples.estimator.plotPredictions(X_train, X_test, y_train, y_test, y_pred)
+                examples.estimator.plotPredictions(y_train, y_test, y_pred)
 
 
 def findClassifierParams(dataset: Dataset, config: Config) -> None:
-    dataset = examples.processDataset(dataset)
-    dataset.apply(examples.convertToCategorical)
+    """
+
+    :param dataset: The loaded and processed dataset, should be a Dataset
+    :param config:
+    :return: None
+    """
+    # TODO: documentation
+    dataset.apply(examples.binaryEncode, dataset.target)
 
     X_train, X_test, y_train, y_test = dataset.split(random_state=config.random_state, shuffle=False)
 
@@ -231,9 +239,9 @@ def findClassifierParams(dataset: Dataset, config: Config) -> None:
             if choice in [2, 3, 4, 5]:
                 best_estimator = find_best_params(classifier, param_grid, X_train, y_train)
                 model = ml.Model(config.model, model=best_estimator)
-                model.fit(X_train, y_train)
+                model.model.fit(X_train, y_train)
                 model.save()
 
-                y_pred = model.predict(X_test)
+                y_pred = model.model.predict(X_test)
                 examples.classifier.resultAnalysis(y_test, y_pred)
                 examples.classifier.plotClassifications(y_test, model.name, y_pred)

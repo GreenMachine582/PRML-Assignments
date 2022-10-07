@@ -1,43 +1,36 @@
 from __future__ import annotations
 
 import logging
-import os
 
 import numpy as np
 from matplotlib import pyplot as plt
 from numpy import ndarray
-from pandas import DataFrame, Series
+from pandas import Series
 from sklearn.metrics import explained_variance_score, mean_squared_log_error, r2_score, mean_absolute_error,\
     mean_squared_error
 
-# Constants
-local_dir = os.path.dirname(__file__)
 
-
-def plotPredictions(X_train: DataFrame, X_test: DataFrame, y_train: Series, y_test: Series,
-                    y_pred: ndarray) -> None:
+def plotPredictions(y_train: Series, y_test: Series, y_pred: ndarray) -> None:
     """
     Plots a line graph of BTC True and Predicted Close.
 
-    :param X_train: Training independent features, should be a DataFrame
-    :param X_test: Testing independent features, should be a DataFrame
     :param y_train: Training independent features, should be a Series
     :param y_test: Testing dependent features, should be a Series
     :param y_pred: Predicted dependent variables, should be a ndarray
     :return: None
     """
     plt.figure()
-    plt.plot(X_train.index, y_train, c='b', label='Train')
-    plt.plot(X_test.index, y_test, c='r', label='Test')
-    plt.plot(X_test.index, y_pred, c='g', label=f"Predictions")
+    plt.plot(y_train.index, y_train, c='b', label='Train')
+    plt.plot(y_test.index, y_test, c='r', label='Test')
+    plt.plot(y_test.index, y_pred, c='g', label=f"Predictions")
     plt.title('BTC Predicted Close')
     plt.xlabel('Date')
     plt.ylabel('Close ($USD)')
     plt.legend()
 
     plt.figure()
-    plt.plot(X_test.index, y_test, c='r', label='Test')
-    plt.plot(X_test.index, y_pred, c='g', label=f"Predictions")
+    plt.plot(y_test.index, y_test, c='r', label='Test')
+    plt.plot(y_test.index, y_pred, c='g', label=f"Predictions")
     plt.title('BTC Predicted Close (Closeup)')
     plt.xlabel('Date')
     plt.ylabel('Close ($USD)')
