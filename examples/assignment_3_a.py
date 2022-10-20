@@ -6,6 +6,23 @@ import examples
 import machine_learning as ml
 
 
+def getProject(dir_: str, name: str) -> tuple:
+    """
+
+    :param dir_:
+    :param name:
+    :return: config, dataset - tuple[Config, Dataset]
+    """
+    # TODO: Documentation
+    config = ml.Config(dir_, name)
+
+    dataset = ml.Dataset(config.dataset)
+    if not dataset.load():
+        raise Exception("Failed to load dataset")
+    dataset = examples.processDataset(dataset, overwrite=False)
+    return config, dataset
+
+
 def main(dir_: str) -> None:
     """
     Gives the user a choice between tasks or datasets.
@@ -13,21 +30,15 @@ def main(dir_: str) -> None:
     :param dir_: Project's path directory, should be a str
     :return: None
     """
+    config, dataset = getProject(dir_, 'BTC-USD')
 
-    config = ml.Config(dir_, 'BTC-USD')
-
-    dataset = ml.Dataset(config.dataset)
-    if not dataset.load():
-        raise Exception("Failed to load dataset")
-    dataset = examples.processDataset(dataset)
-
-    use_best = True
     while True:
         print(f"""
         0 - Back
-        1 - Use best param (Toggle) - {use_best}
-        2 - Find Estimator Params
-        3 - Find Classifier Params
+        1 - Process Dataset (Includes EDA)
+        2 - Compare Estimators
+        3 - Compare Classifiers
+        4 - Compare Params
         """)
         choice = input("Which option number: ")
         try:
@@ -40,10 +51,12 @@ def main(dir_: str) -> None:
             if choice == 0:
                 return
             elif choice == 1:
-                use_best = not use_best
+                examples.process.main(dir_)
             elif choice == 2:
-                examples.compare_params.findEstimatorParams(deepcopy(dataset), config)
+                examples.compare_models.compareEstimators(deepcopy(dataset), config)
             elif choice == 3:
-                examples.compare_params.findClassifierParams(deepcopy(dataset), config)
+                examples.compare_models.compareClassifiers(deepcopy(dataset), config)
+            elif choice == 4:
+                examples.compare_params.compareParams(deepcopy(dataset), config)
             else:
                 print("\nPlease enter a valid choice!")
