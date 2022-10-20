@@ -109,8 +109,29 @@ def getDecisionTreeRegressor():
 
     :return: estimator - dict[str: Any]
     """
-    best_params = {}
-    grid_params = {}
+    best_params = {'splitter': 'best',
+                   'random_state': 0,
+                   'min_weight_fraction_leaf': 0.0,
+                   'min_samples_split': 2,
+                   'min_samples_leaf': 2,
+                   'min_impurity_decrease': 0.0,
+                   'max_leaf_nodes': 80,
+                   'max_features': 'log2',
+                   'max_depth': 11,
+                   'criterion': 'friedman_mse',
+                   'ccp_alpha': 0.0}
+
+    grid_params = {'criterion': ['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
+                   'splitter': ['best', 'random'],
+                   'max_depth': [1, 3, 5, 7, 9, 11, 12],
+                   'min_samples_split': [2],
+                   'min_samples_leaf': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                   'min_weight_fraction_leaf': [0.0],
+                   'max_features': ['auto', 'log2', 'sqrt', None],
+                   'random_state': [0],
+                   'max_leaf_nodes': [None, 10, 20, 30, 40, 50, 60, 70, 80, 90],
+                   'min_impurity_decrease': [0.0],
+                   'ccp_alpha': [0.0]}
 
     estimator = {'name': 'DTR',
                  'fullname': "Decision Tree Regressor",
@@ -129,15 +150,15 @@ def getRidgeClassifier():
     :return: classifier - dict[str: Any]
     """
     best_params = {'tol': 0.001,
-                    'solver': 'auto',
-                    'random_state': 1,
-                    'positive': False,
-                    'normalize': 'deprecated',
-                    'max_iter': 2500,
-                    'fit_intercept': False,
-                    'copy_X': True,
-                    'class_weight': 'balanced',
-                    'alpha': 1.66}
+                   'solver': 'auto',
+                   'random_state': 1,
+                   'positive': False,
+                   'normalize': 'deprecated',
+                   'max_iter': 2500,
+                   'fit_intercept': False,
+                   'copy_X': True,
+                   'class_weight': 'balanced',
+                   'alpha': 1.66}
 
     grid_params = {'alpha': [0.02 * (i + 1) for i in range(100)],
                    'fit_intercept': [True, False],
