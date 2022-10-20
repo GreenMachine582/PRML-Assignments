@@ -128,8 +128,27 @@ def getRidgeClassifier():
 
     :return: classifier - dict[str: Any]
     """
-    best_params = {}
-    grid_params = {}
+    best_params = {'tol': 0.001,
+                    'solver': 'auto',
+                    'random_state': 1,
+                    'positive': False,
+                    'normalize': 'deprecated',
+                    'max_iter': 2500,
+                    'fit_intercept': False,
+                    'copy_X': True,
+                    'class_weight': 'balanced',
+                    'alpha': 1.66}
+
+    grid_params = {'alpha': [0.02 * (i + 1) for i in range(100)],
+                   'fit_intercept': [True, False],
+                   'normalize': ['deprecated'],
+                   'copy_X': [True, False],
+                   'max_iter': [None, *range(2500, 4001, 50)],
+                   'tol': [0.001],
+                   'class_weight': ['balanced', None],
+                   'solver': ['auto'],
+                   'positive': [False, True],
+                   'random_state': [1]}
 
     classifier = {'name': 'RC',
                   'fullname': "Ridge Classifier",
