@@ -20,6 +20,7 @@ START_TIME = time()
 def quit_program() -> None:
     """
     Closes python in a safe manner.
+
     :return:
         - None
     """
@@ -30,6 +31,7 @@ def quit_program() -> None:
 def main() -> None:
     """
     Gives the user a choice between tasks or datasets.
+
     :return:
         - None
     """

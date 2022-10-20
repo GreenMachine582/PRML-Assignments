@@ -6,13 +6,12 @@ from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
-from pandas import DataFrame
+from pandas import DataFrame, Series
 
 from sklearn.metrics import confusion_matrix, classification_report, ConfusionMatrixDisplay
 from sklearn.linear_model import LogisticRegression
 from sklearn.decomposition import PCA
 
-import examples
 import machine_learning as ml
 
 
@@ -94,13 +93,13 @@ def exploratoryDataAnalysis(df: DataFrame, target) -> None:
     plt.show()  # displays the plots
 
 
-def resultAnalysis(model: Any, X: DataFrame, X_test: DataFrame, y_test: DataFrame) -> None:
+def resultAnalysis(model: Any, X: DataFrame, X_test: DataFrame, y_test: Series) -> None:
     """
 
     :param model: Any
     :param X: DataFrame
     :param X_test: DataFrame
-    :param y_test: DataFrame
+    :param y_test: Series
     :return:
         - None
     """
@@ -160,7 +159,7 @@ def resultAnalysis(model: Any, X: DataFrame, X_test: DataFrame, y_test: DataFram
 
     print(classification_report(y_test, y_pred))
 
-    examples.estimator.resultAnalysis(y_test, y_pred)
+    ml.estimator.resultAnalysis(y_test, ('LR', y_pred))
 
 
 def main(dir_=local_dir):
@@ -174,7 +173,6 @@ def main(dir_=local_dir):
 
     exploratoryDataAnalysis(dataset.df, dataset.target)
 
-    X, y = dataset.getIndependent(), dataset.getDependent()
     X_train, X_test, y_train, y_test = dataset.split(random_state=config.random_state, shuffle=False)
 
     model = ml.Model(config.model, model=LogisticRegression(solver="lbfgs", max_iter=100))
@@ -182,7 +180,7 @@ def main(dir_=local_dir):
     model.model.fit(X_train, y_train)
     model.save()
 
-    resultAnalysis(model.model, X, X_test, y_test)
+    resultAnalysis(model.model, dataset.X, X_test, y_test)
     return
 
 

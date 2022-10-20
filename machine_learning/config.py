@@ -33,7 +33,7 @@ class Config(object):
         self._dataset: dict[str: Any] = {'name': name,
                                          'sep': ',',
                                          'names': [],
-                                         'target': 'cnt',
+                                         'target': 'Close',
                                          'train_size': 0.75}
 
         # Default configuration for Model
