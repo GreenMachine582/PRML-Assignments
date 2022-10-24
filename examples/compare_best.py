@@ -22,12 +22,11 @@ def compareEstimator(estimator, dataset, config):
     estimator.model.fit(X_train, y_train)
     y_pred = np.clip(estimator.model.predict(X_test), 0, None)
 
-    estimator.save()
-
-    estimator.resultAnalysis(y_test, y_pred, plot=False, dataset_name=dataset.name, results_dir=results_dir)
-    estimator.plotPrediction(y_test, y_pred, y_train, ylabel="Close ($USD)", dataset_name=dataset.name,
+    estimator.resultAnalysis(y_test, y_pred, plot=False, dataset_name=f"{dataset.name} Recorded Best")
+    estimator.plotPrediction(y_test, y_pred, y_train, ylabel="Close ($USD)",
+                             dataset_name=f"{dataset.name} Recorded Best", results_dir=results_dir)
+    estimator.plotImportance(X_train.columns, X_test, y_test, dataset_name=f"{dataset.name} Recorded Best",
                              results_dir=results_dir)
-    estimator.plotImportance(X_train.columns, X_test, y_test, dataset_name=dataset.name, results_dir=results_dir)
 
 
 def compareClassifier(classifier, dataset, config):
@@ -43,11 +42,11 @@ def compareClassifier(classifier, dataset, config):
     classifier.model.fit(X_train, y_train)
     y_pred = classifier.model.predict(X_test)
 
-    classifier.save()
-
     classifier.resultAnalysis(y_test, y_pred, plot=False, dataset_name=f"{dataset.name} Recorded Best")
-    classifier.plotPrediction(y_test, y_pred, y_train, dataset_name=f"{dataset.name} Recorded Best")
-    classifier.plotImportance(X_train.columns, X_test, y_test, dataset_name=dataset.name, results_dir=results_dir)
+    classifier.plotPrediction(y_test, y_pred, y_train, dataset_name=f"{dataset.name} Recorded Best",
+                              results_dir=results_dir)
+    classifier.plotImportance(X_train.columns, X_test, y_test, dataset_name=f"{dataset.name} Recorded Best",
+                              results_dir=results_dir)
 
 
 def compareBest(dataset: Dataset, config: Config) -> None:
@@ -94,7 +93,9 @@ def compareBest(dataset: Dataset, config: Config) -> None:
         if model_config is not None:
             model = Model(config.model, **model_config)
             model.base = Pipeline([('scaler', StandardScaler()), (model.name, model.base)])
-            model.createModel()
+            path_, exist = ml.utils.checkPath(config.dir_, model.FOLDER_NAME, model.name, ext=model.EXT)
+            model.createModel() if not exist else model.load()  # loads best model
+
             if model.type_ == 'estimator':
                 compareEstimator(model, deepcopy(dataset), config)
             elif model.type_ == 'classifier':
