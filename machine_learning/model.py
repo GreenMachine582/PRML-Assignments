@@ -58,6 +58,7 @@ def save(dir_: str, name: str, model: object, ext: str = '.model') -> bool:
 
 
 class Model(object):
+    EXT = '.model'
     FOLDER_NAME = 'models'
 
     def __init__(self, config: dict, **kwargs) -> None:
@@ -102,17 +103,19 @@ class Model(object):
         utils.update(self, kwargs)
         logging.info(f"Updated model '{self.name}' attributes")
 
-    def load(self) -> bool:
+    def load(self, inplace: bool = True) -> Any:
         """
         Load the model attribute.
 
-        :return: completed - bool
+        :param inplace: If True, modifies the model in place, should be a bool
+        :return: model - Any
         """
-        model = load(utils.joinPath(self.dir_, self.FOLDER_NAME), self.name)
+        model = load(utils.joinPath(self.dir_, self.FOLDER_NAME), self.name, ext=self.EXT)
         if model is None:
-            return False
-        self.model = model
-        return True
+            return None
+        if inplace:
+            self.model = model
+        return model
 
     def save(self) -> bool:
         """
@@ -124,7 +127,7 @@ class Model(object):
             return False
 
         path_ = utils.makePath(self.dir_, self.FOLDER_NAME)
-        return save(path_, self.name, self.model)
+        return save(path_, self.name, self.model, ext=self.EXT)
 
     def createModel(self, params: dict = None, inplace: bool = True) -> Any:
         """
