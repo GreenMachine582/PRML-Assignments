@@ -52,21 +52,25 @@ def searchCV(model: Model, X_train: DataFrame, y_train: Series, display: bool = 
     return cv_results
 
 
-def getGradientBoostingRegressor() -> dict:
+def getGradientBoostingRegressor(random_state: int = None) -> dict:
     """
     Get the Gradient Boosting Regressor and appropriate attributes.
 
+    :param random_state:
     :return: estimator - dict[str: Any]
     """
-    best_params = {'criterion': 'friedman_mse',
-                   'learning_rate': 0.01,
-                   'max_depth': 65,
-                   'n_estimators': 600,
-                   'subsample': 0.4}
+    # TODO: documentation
+    best_params = {'criterion': 'squared_error',
+                   'learning_rate': 0.112,
+                   'max_depth': 5,
+                   'n_estimators': 400,
+                   'random_state': 1,
+                   'subsample': 0.5}
     grid_params = {'criterion': ['friedman_mse', 'squared_error'],
                    'learning_rate': [0.002 * (i + 1) for i in range(100)],
                    'max_depth': range(5, 101, 5),
                    'n_estimators': range(50, 801, 50),
+                   'random_state': [random_state],
                    'subsample': [0.1 * (i + 1) for i in range(10)]}
 
     estimator = {'name': 'GBR',
@@ -79,22 +83,26 @@ def getGradientBoostingRegressor() -> dict:
     return estimator
 
 
-def getRandomForestRegressor() -> dict:
+def getRandomForestRegressor(random_state: int = None) -> dict:
     """
     Get the Random Forest Regressor and appropriate attributes.
 
+    :param random_state:
     :return: estimator - dict[str: Any]
     """
+    # TODO: documentation
     best_params = {'criterion': 'squared_error',
                    'max_depth': 66,
                    'max_features': 0.5,
                    'min_samples_split': 3,
-                   'n_estimators': 50}
+                   'n_estimators': 50,
+                   'random_state': 1}
     grid_params = {'criterion': ['squared_error', 'absolute_error', 'poisson'],
                    'max_depth': [2 * (i + 1) for i in range(40)],
                    'max_features': ['sqrt', 'log2', 2, 1, 0.5],
                    'min_samples_split': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1., 2, 3, 4],
-                   'n_estimators': [50 * (i + 1) for i in range(20)]}
+                   'n_estimators': [50 * (i + 1) for i in range(20)],
+                   'random_state': [random_state]}
 
     estimator = {'name': 'RFR',
                  'fullname': "Random Forest Regressor",
@@ -106,12 +114,14 @@ def getRandomForestRegressor() -> dict:
     return estimator
 
 
-def getDecisionTreeRegressor():
+def getDecisionTreeRegressor(random_state: int = None):
     """
     Get the Decision Tree Regressor and appropriate attributes.
 
+    :param random_state:
     :return: estimator - dict[str: Any]
     """
+    # TODO: documentation
     best_params = {'splitter': 'best',
                    'random_state': 0,
                    'min_weight_fraction_leaf': 0.0,
@@ -146,45 +156,49 @@ def getDecisionTreeRegressor():
     return estimator
 
 
-def getRidgeClassifier():
+def getRidgeClassifier(random_state: int = None):
     """
     Get the Ridge Classifier and appropriate attributes.
 
-    :return: classifier - dict[str: Any]
+    :param random_state:
+    :return: model - dict[str: Any]
     """
+    # TODO: documentation
     best_params = {'tol': 0.001,
                    'solver': 'auto',
-                   'random_state': 1,
+                   'random_state': 2,
                    'positive': False,
                    'normalize': 'deprecated',
-                   'max_iter': 2500,
+                   'max_iter': 3100,
                    'fit_intercept': False,
-                   'copy_X': True,
-                   'class_weight': 'balanced',
-                   'alpha': 1.66}
+                   'copy_X': False,
+                   'class_weight': None,
+                   'alpha': 1.04}
 
-    grid_params = {'alpha': [0.02 * (i + 1) for i in range(100)],
-                   'fit_intercept': [True, False],
-                   'normalize': ['deprecated'],
-                   'copy_X': [True, False],
-                   'max_iter': [None, *range(2500, 4001, 50)],
-                   'tol': [0.001],
-                   'class_weight': ['balanced', None],
-                   'solver': ['auto'],
-                   'positive': [False, True],
-                   'random_state': [1]}
+    grid_params = [{'alpha': [0.02 * (i + 1) for i in range(100)],
+                    'class_weight': ['balanced', None],
+                    'copy_X': [True, False],
+                    'fit_intercept': [True, False],
+                    'max_iter': [None, *range(2500, 4001, 50)],
+                    'normalize': ['deprecated'],
+                    'positive': [False, True],
+                    'random_state': [random_state],
+                    'solver': ['auto'],
+                    'tol': [0.001]}]
 
-    classifier = {'name': 'RC',
-                  'fullname': "Ridge Classifier",
-                  'type_': 'classifier',
-                  'base': linear_model.RidgeClassifier(),
-                  'best_params': best_params,
-                  'grid_params': grid_params}
-    logging.info(f"Got '{classifier['name']}' attributes")
-    return classifier
+    model = {'name': 'RC',
+             'fullname': "Ridge Classifier",
+             'type_': 'classifier',
+             'base': linear_model.RidgeClassifier(),
+             'best_params': best_params,
+             'grid_params': grid_params}
+
+    logging.info(f"Got '{model['name']}' attributes")
+    return model
 
 
 def compareEstimator(estimator, dataset, config):
+    # TODO: documentation
     results_dir = ml.utils.makePath(config.dir_, config.results_folder, f"{estimator.type_}_{estimator.name}")
 
     X_train, X_test, y_train, y_test = dataset.split(shuffle=False)
@@ -193,7 +207,7 @@ def compareEstimator(estimator, dataset, config):
 
     models = [('Default', deepcopy(estimator.base)),
               ('Grid Searched', cv_results.best_estimator_),
-              ('Recorded Best', deepcopy(estimator.base).set_params(**estimator.best_params))]
+              ('Recorded Best', estimator.createModel(inplace=False))]
 
     logging.info("Fitting and predicting")
     y_preds = []
@@ -202,15 +216,13 @@ def compareEstimator(estimator, dataset, config):
         y_pred = model.predict(X_test)
         y_preds.append((name, np.clip(y_pred, 0, None)))
 
-    ml.estimator.resultAnalysis(y_test, y_preds, dataset_name=dataset.name, dir_=results_dir)
-
-    y_preds = [(name, Series(y_pred, index=y_test.index).resample('D').sum()) for name, y_pred in y_preds]
-    ml.estimator.plotPrediction(y_train.resample('D').sum(), y_test.resample('D').sum(), y_preds,
-                                target=dataset.target,
-                                dataset_name=dataset.name, dir_=results_dir)
+    ml.estimator.resultAnalysis(y_test, y_preds, dataset_name=dataset.name, results_dir=results_dir)
+    ml.estimator.plotPrediction(y_train, y_test, y_preds, ylabel="Close ($USD)", dataset_name=dataset.name,
+                                results_dir=results_dir)
 
 
 def compareClassifier(classifier, dataset, config):
+    # TODO: documentation
     results_dir = ml.utils.makePath(config.dir_, config.results_folder, f"{classifier.type_}_{classifier.name}")
 
     dataset.df.drop('diff', axis=1, inplace=True)  # same feature as binary encoded target
@@ -222,7 +234,7 @@ def compareClassifier(classifier, dataset, config):
 
     models = [('Default', deepcopy(classifier.base)),
               ('Grid Searched', cv_results.best_estimator_),
-              ('Recorded Best', deepcopy(classifier.base).set_params(**classifier.best_params))]
+              ('Recorded Best', classifier.createModel(inplace=False))]
 
     logging.info("Fitting and predicting")
     y_preds = []
@@ -230,9 +242,8 @@ def compareClassifier(classifier, dataset, config):
         model.fit(X_train, y_train)
         y_preds.append((name, model.predict(X_test)))
 
-    ml.classifier.resultAnalysis(y_test, y_preds, dataset_name=dataset.name, dir_=results_dir)
-
-    ml.classifier.plotPrediction(y_test, y_preds, dataset_name=dataset.name, dir_=results_dir)
+    ml.classifier.resultAnalysis(y_test, y_preds, dataset_name=dataset.name, results_dir=results_dir)
+    ml.classifier.plotPrediction(y_test, y_preds, dataset_name=dataset.name, results_dir=results_dir)
 
 
 def compareParams(dataset: Dataset, config: Config) -> None:
@@ -268,13 +279,13 @@ def compareParams(dataset: Dataset, config: Config) -> None:
             if choice == 0:
                 return
             elif choice == 1:
-                model_config = getGradientBoostingRegressor()
+                model_config = getGradientBoostingRegressor(config.random_state)
             elif choice == 2:
-                model_config = getRandomForestRegressor()
+                model_config = getRandomForestRegressor(config.random_state)
             elif choice == 3:
-                model_config = getDecisionTreeRegressor()
+                model_config = getDecisionTreeRegressor(config.random_state)
             elif choice == 4:
-                model_config = getRidgeClassifier()
+                model_config = getRidgeClassifier(config.random_state)
             else:
                 print("\nPlease enter a valid choice!")
 

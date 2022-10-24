@@ -13,7 +13,7 @@ from pandas import Series
 from sklearn.inspection import permutation_importance
 from sklearn.pipeline import Pipeline
 
-from . import classifier, estimator, utils
+from machine_learning import classifier, estimator, utils
 
 
 def load(dir_: str, name: str, ext: str = '.model') -> Any:
@@ -75,7 +75,7 @@ class Model(object):
         self.type_: str = ''
         self.base: Any = None
         self.best_params: dict = {}
-        self.grid_params: dict = {}
+        self.grid_params: dict | list = None
 
         self.model: Any = None
 
@@ -93,7 +93,7 @@ class Model(object):
         :key base: The model's default model, should be an Any
         :key best_params: The model's best set of params, should be a dict[str: Any]
         :key grid_params: The model's set of params to be searched, should be a
-         list[dict[str: Any]] | dict[str: Any]
+         dict[str: Any] | list[dict[str: Any]]
         :key model: Model's modified base model, can be saved, should be an Any
         :return: None
         """
@@ -101,38 +101,6 @@ class Model(object):
             raise ValueError("The parameter type_ must be either 'estimator' or 'classifier'")
         utils.update(self, kwargs)
         logging.info(f"Updated model '{self.name}' attributes")
-
-    # def load(self) -> bool:
-    #     """
-    #     Load the model file and updates the object attributes.
-    #
-    #     :return: completed - bool
-    #     """
-    #     model = load(utils.joinPath(self.dir_, self.FOLDER_NAME), self.name, ext='.json')
-    #     if model is None:
-    #         return False
-    #
-    #     self.update(**model)
-    #     if isinstance(self.base, str):
-    #         obj_name = '.'.join((model.method_, model.fullname.replace(' ', '')))
-    #         self.base = eval(obj_name)()
-    #     return True
-    #
-    # def save(self) -> bool:
-    #     """
-    #     Save the model attributes as an indented dict in a json file, to allow
-    #     users to edit and easily view the default configs.
-    #
-    #     :return: completed - bool
-    #     """
-    #     temp_model = deepcopy(self)
-    #     temp_model.update(model=None, base=None)
-    #
-    #     name = utils.joinPath(temp_model.name, ext='.json')
-    #     completed = utils.save(utils.joinPath(temp_model.dir_, temp_model.FOLDER_NAME), name, temp_model.__dict__)
-    #     if not completed:
-    #         logging.warning(f"Failed to save model '{temp_model.name}'")
-    #     return completed
 
     def load(self) -> bool:
         """
@@ -158,16 +126,16 @@ class Model(object):
         path_ = utils.makePath(self.dir_, self.FOLDER_NAME)
         return save(path_, self.name, self.model)
 
-    def createModel(self, param_type: str = 'best', **kwargs) -> Any:
+    def createModel(self, params: dict = None, inplace: bool = True) -> Any:
         """
 
-        :param param_type:
-        :param kwargs: Additional keywords to pass to sklearn's set_params
+        :param params:
+        :param inplace: If True, modifies the model in place, should be a bool
         :return: None
         """
         # TODO: Add documentation
-        logging.info("Creating")
-        if param_type == 'best':
+        logging.info("Creating model")
+        if params is None:
             params = self.best_params
         elif param_type == 'grid':
             params = self.grid_params
@@ -186,7 +154,7 @@ class Model(object):
         :param y_train: Training independent features, should be a Series
         :key target: The predicted variables name, should be a str
         :key dataset_name: Name of dataset, should be a str
-        :key dir_: Save location for figures, should be a str
+        :key results_dir: Save location for figures, should be a str
         :return: None
         """
         if self.type_ == 'estimator':
@@ -213,14 +181,14 @@ class Model(object):
         elif self.type_ == 'classifier':
             classifier.resultAnalysis(y_test, (self.name, y_pred), **kwargs)
 
-    def plotImportance(self, feature_names, X_test, y_test, dataset_name: str = '', dir_: str = '') -> None:
+    def plotImportance(self, feature_names, X_test, y_test, dataset_name: str = '', results_dir: str = '') -> None:
         """
 
         :param feature_names:
         :param X_test:
         :param y_test:
         :param dataset_name: Name of dataset, should be a str
-        :param dir_: Save location for figures, should be a str
+        :param results_dir: Save location for figures, should be a str
         :return:
         """
         # TODO: Documentation
@@ -240,8 +208,8 @@ class Model(object):
             sorted_idx = result.importances_mean.argsort()
             ax2.boxplot(result.importances[sorted_idx].T, vert=False, labels=np.array(feature_names)[sorted_idx])
             fig.suptitle(f"Feature and Permutation Importance - {dataset_name}")
-            if dir_:
-                plt.savefig(utils.joinPath(dir_, fig._suptitle.get_text(), ext='.png'))
+            if results_dir:
+                plt.savefig(utils.joinPath(results_dir, fig._suptitle.get_text(), ext='.png'))
         elif hasattr(self.model, 'coef_'):
             fig, ax = plt.subplots(figsize=(10, 6))
             coef = Series(self.model.coef_[0], index=X_test.columns)
@@ -249,14 +217,14 @@ class Model(object):
             rcParams['figure.figsize'] = (8.0, 10.0)
             imp_coef.plot(kind="barh")
             fig.suptitle(f"Coefficient Importance - {dataset_name}")
-            if dir_:
-                plt.savefig(utils.joinPath(dir_, fig._suptitle.get_text(), ext='.png'))
+            if results_dir:
+                plt.savefig(utils.joinPath(results_dir, fig._suptitle.get_text(), ext='.png'))
         else:
             fig, ax = plt.subplots(figsize=(10, 10))
             result = permutation_importance(self.model, X_test, y_test, n_repeats=10, n_jobs=-1)
             sorted_idx = result.importances_mean.argsort()
             ax.boxplot(result.importances[sorted_idx].T, vert=False, labels=np.array(feature_names)[sorted_idx])
             fig.suptitle(f"Permutation Importance - {dataset_name}")
-            if dir_:
-                plt.savefig(utils.joinPath(dir_, fig._suptitle.get_text(), ext='.png'))
+            if results_dir:
+                plt.savefig(utils.joinPath(results_dir, fig._suptitle.get_text(), ext='.png'))
         plt.show()

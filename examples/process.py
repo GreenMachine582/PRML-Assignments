@@ -18,7 +18,7 @@ def preProcess(df: DataFrame) -> DataFrame:
     Pre-Process the BTC dataset, by generalising feature names, correcting
     datatypes, normalising values and handling invalid instances.
 
-    :param df: BSS dataset, should be a DataFrame
+    :param df: BTC dataset, should be a DataFrame
     :return: df - DataFrame
     """
     df = ml.handleMissingData(df)
@@ -30,7 +30,7 @@ def preProcess(df: DataFrame) -> DataFrame:
     return df
 
 
-def exploratoryDataAnalysis(df: DataFrame, dataset_name: str = '', dir_: str = '') -> None:
+def exploratoryDataAnalysis(df: DataFrame, dataset_name: str = '', results_dir: str = '') -> None:
     """
     Performs initial investigations on data to discover patterns, to spot
     anomalies, to test hypotheses and to check assumptions with the help
@@ -38,7 +38,7 @@ def exploratoryDataAnalysis(df: DataFrame, dataset_name: str = '', dir_: str = '
 
     :param df: BSS dataset, should be a DataFrame
     :param dataset_name: Name of dataset, should be a str
-    :param dir_: Save location for figures, should be a str
+    :param results_dir: Save location for figures, should be a str
     :return: None
     """
     logging.info("Exploratory Data Analysis")
@@ -47,8 +47,8 @@ def exploratoryDataAnalysis(df: DataFrame, dataset_name: str = '', dir_: str = '
     graph = sns.heatmap(df.corr(), annot=True, square=True, cmap='Greens', fmt='.2f')
     graph.set_xticklabels(graph.get_xticklabels(), rotation=40)
     fig.suptitle(f"Corresponding Matrix - {dataset_name}")
-    if dir_:
-        plt.savefig(utils.joinPath(dir_, fig._suptitle.get_text(), ext='.png'))
+    if results_dir:
+        plt.savefig(utils.joinPath(results_dir, fig._suptitle.get_text(), ext='.png'))
 
     df_month = df.resample('MS').mean()
     df_week = df.resample('W').mean()
@@ -60,8 +60,8 @@ def exploratoryDataAnalysis(df: DataFrame, dataset_name: str = '', dir_: str = '
     ax.set(xlabel='Date', ylabel='Close ($USD)')
     plt.legend()
     fig.suptitle(f"Closing Price Vs Date - {dataset_name}")
-    if dir_:
-        plt.savefig(utils.joinPath(dir_, fig._suptitle.get_text(), ext='.png'))
+    if results_dir:
+        plt.savefig(utils.joinPath(results_dir, fig._suptitle.get_text(), ext='.png'))
 
     plt.show()  # displays all figures
 
@@ -145,7 +145,7 @@ def main(dir_: str) -> None:
 
     dataset.df.drop('Date', axis=1, inplace=True)
 
-    exploratoryDataAnalysis(dataset.df, dataset_name=dataset.name, dir_=results_dir)
+    exploratoryDataAnalysis(dataset.df, dataset_name=dataset.name, results_dir=results_dir)
 
     dataset.apply(processData)
     dataset.update(name=(dataset_name + '-processed'))

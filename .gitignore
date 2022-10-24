@@ -4,11 +4,9 @@ log.txt
 venv
 configs/
 datasets/
+!datasets/BTC-USD.csv
 models/
 results/
-Jupyter Notebooks/.ipynb_checkpoints
-Jupyter Notebooks/*.ipynb
-Jupyter Notebooks/*.html
 examples/__pycache__/
 machine_learning/__pycache__/
 
@@ -141,3 +139,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/results/
