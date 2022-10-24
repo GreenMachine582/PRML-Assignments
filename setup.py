@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='prml-machinelearning',
-    version='v0.3.0',
+    version='v0.3.3',
     author='Matthew Johnson, Leigh Hill',
     author_email='greenchicken1902@gmail.com',
     maintainer='Matthew Johnson',
