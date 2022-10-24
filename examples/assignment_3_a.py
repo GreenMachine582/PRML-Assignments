@@ -39,6 +39,7 @@ def main(dir_: str) -> None:
         2 - Compare Estimators
         3 - Compare Classifiers
         4 - Compare Params
+        5 - Compare Best
         """)
         choice = input("Which option number: ")
         try:
@@ -58,5 +59,7 @@ def main(dir_: str) -> None:
                 examples.compare_models.compareClassifiers(deepcopy(dataset), config)
             elif choice == 4:
                 examples.compare_params.compareParams(deepcopy(dataset), config)
+            elif choice == 5:
+                examples.compare_best.compareBest(deepcopy(dataset), config)
             else:
                 print("\nPlease enter a valid choice!")
