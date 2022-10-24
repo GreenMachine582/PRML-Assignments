@@ -137,13 +137,35 @@ class Model(object):
         logging.info("Creating model")
         if params is None:
             params = self.best_params
-        elif param_type == 'grid':
-            params = self.grid_params
-        else:
-            raise ValueError("The parameter param_type must be either 'best' or 'grid'")
 
-        self.model = deepcopy(self.base).set_params(**dict(params, **kwargs))
-        return self.model
+        if isinstance(self.base, Pipeline):
+            params = self.getPipelineKeys(params)
+
+        model = deepcopy(self.base).set_params(**params)
+        if inplace:
+            self.model = model
+        return model
+
+    def getPipelineKeys(self, param_grid: dict | list) -> dict | list:
+        """
+
+        :param param_grid:
+        :return:
+        """
+        # TODO: documentation
+        kwargs = param_grid if isinstance(param_grid, list) else [param_grid]
+        updated = []
+        for x in kwargs:
+            pipeline_keys = {}
+            for key in x:
+                if f"__" not in key:
+                    pipeline_keys[f"{self.name}__{key}"] = x[key]
+                else:
+                    pipeline_keys[key] = x[key]
+            if isinstance(param_grid, dict):
+                return pipeline_keys
+            updated.append(pipeline_keys)
+        return updated
 
     def plotPrediction(self, y_test: Series, y_pred: ndarray, y_train: Series = None, **kwargs) -> None:
         """
