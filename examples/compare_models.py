@@ -126,12 +126,12 @@ def compareClassifiers(dataset: Dataset, config: Config) -> None:
     results = compareModels(models, X_train, y_train, dataset_name=dataset.name, dir_=results_dir)
 
     # removes classifiers that performed poorly
-    del results['LR']
-    del results['SGDC']
+    del results['GBC']
+    del results['RFC']
     del results['KNC']
     del results['NC']
-    del results['MLPC']
     del results['SVC']
+    del results['DTC']
     del results['ETC']
 
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex='col')
