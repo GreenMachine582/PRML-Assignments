@@ -11,6 +11,7 @@ from matplotlib import rcParams
 from numpy import ndarray
 from pandas import Series
 from sklearn.inspection import permutation_importance
+from sklearn.pipeline import Pipeline
 
 from . import classifier, estimator, utils
 

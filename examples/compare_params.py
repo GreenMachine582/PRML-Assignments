@@ -31,11 +31,14 @@ def searchCV(model: Model, X_train: DataFrame, y_train: Series, display: bool = 
     :return: cv_results - GridSearchCV | RandomizedSearchCV
     """
     logging.info(f"Grid searching '{model.name}'")
+
+    params = model.grid_params if not isinstance(model.base, Pipeline) else model.getPipelineKeys(model.grid_params)
+
     if search_method == "randomised":
-        cv_results = RandomizedSearchCV(model.base, model.grid_params, n_iter=100, n_jobs=-1,
-                                        random_state=random_state, cv=TimeSeriesSplit(10), verbose=2)
+        cv_results = RandomizedSearchCV(model.base, params, n_iter=1000, n_jobs=-1, random_state=random_state,
+                                        cv=TimeSeriesSplit(10), verbose=2)
     elif search_method == "grid":
-        cv_results = GridSearchCV(model.base, model.grid_params, n_jobs=-1, cv=TimeSeriesSplit(10), verbose=2)
+        cv_results = GridSearchCV(model.base, params, n_jobs=-1, cv=TimeSeriesSplit(10), verbose=2)
     else:
         raise ValueError("The parameter 'search_method' must be either 'randomised' or 'grid'")
 
@@ -277,6 +280,7 @@ def compareParams(dataset: Dataset, config: Config) -> None:
 
         if model_config is not None:
             model = Model(config.model, **model_config)
+            model.base = Pipeline([('scaler', StandardScaler()), (model.name, model.base)])
             if model.type_ == 'estimator':
                 compareEstimator(model, dataset, config)
             elif model.type_ == 'classifier':

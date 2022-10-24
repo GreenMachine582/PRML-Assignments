@@ -7,6 +7,8 @@ from matplotlib import pyplot as plt
 from pandas import DataFrame, Series
 from sklearn import ensemble, neighbors, neural_network, svm, tree, linear_model
 from sklearn.model_selection import TimeSeriesSplit, cross_validate
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 import machine_learning as ml
 from machine_learning import Dataset, Config
@@ -26,8 +28,9 @@ def compareModels(models: dict, X_train: DataFrame, y_train: Series, dataset_nam
     """
     results = {}
     for name in models:
-        cv_results = cross_validate(models[name], X_train, y_train, cv=TimeSeriesSplit(10), n_jobs=-1)
-        cv_results['model'] = models[name]
+        model = Pipeline([('scaler', StandardScaler()), (name, models[name])])
+        cv_results = cross_validate(model, X_train, y_train, cv=TimeSeriesSplit(10), n_jobs=-1)
+        cv_results['model'] = model
         results[name] = cv_results
 
         print('%s: %f (%f)' % (name, cv_results['test_score'].mean(), cv_results['test_score'].std()))
