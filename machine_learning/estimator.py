@@ -4,7 +4,7 @@ import logging
 
 import numpy as np
 from matplotlib import pyplot as plt
-from pandas import Series
+from pandas import DataFrame, Series
 from sklearn import metrics
 
 import machine_learning as ml
@@ -26,14 +26,7 @@ def plotPrediction(y_train: Series, y_test: Series, y_pred: tuple | dict | list,
     """
     logging.info("Plotting predictions")
 
-    if isinstance(y_pred, tuple):
-        y_preds = [y_pred]
-    elif isinstance(y_pred, dict):
-        y_preds = [(x, y_pred[x]) for x in y_pred]
-    elif isinstance(y_pred, list):
-        y_preds = y_pred
-    else:
-        raise TypeError(f"'y_pred': Expected type 'tuple | dict | list', got {type(y_pred).__name__} instead")
+    y_preds = ml.utils.convertToList(y_pred, 'y_pred')
 
     # plots a line graph of BSS True and Predicted demand
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -78,15 +71,7 @@ def resultAnalysis(y_test: Series, y_pred: tuple | dict | list, plot: bool = Tru
     """
     logging.info("Analysing results")
 
-    if isinstance(y_pred, tuple):
-        y_preds = [y_pred]
-    elif isinstance(y_pred, dict):
-        y_preds = [(x, y_pred[x]) for x in y_pred]
-    elif isinstance(y_pred, list):
-        y_preds = y_pred
-    else:
-        raise TypeError(f"'y_pred': Expected type 'tuple | dict | list', got {type(y_pred).__name__} instead")
-
+    y_preds = ml.utils.convertToList(y_pred, 'y_pred')
     results = {'names': [], 'explained_variance': [], 'mean_squared_log_error': [],
                'r2': [], 'mae': [], 'mse': [], 'rmse': []}
 
@@ -119,6 +104,54 @@ def resultAnalysis(y_test: Series, y_pred: tuple | dict | list, plot: bool = Tru
     ml.utils._plotBar(ax5, results['names'], results['mse'], 'MSE')
     ml.utils._plotBar(ax6, results['names'], results['rmse'], 'RMSE')
     fig.suptitle(f"Result Analysis - {dataset_name}")
+    if results_dir:
+        plt.savefig(ml.utils.joinPath(results_dir, fig._suptitle.get_text(), ext='.png'))
+    plt.show()
+    return results
+
+
+def biasVarianceDecomp(model: tuple | list | dict, X_train: DataFrame, y_train: Series, X_test: DataFrame,
+                       y_test: Series, n_iter: int = 10, display: bool = True, plot: bool = True,
+                       dataset_name: str = '', results_dir: str = ''):
+    logging.info("Conducting bias variance decomposition")
+
+    models = ml.utils.convertToList(model, 'model')
+    results = {'names': [], 'loss': [], 'bias': [], 'var': [], 'avg': []}
+
+    for name, estimator in models:
+        all_pred = np.zeros((n_iter, y_test.shape[0]), dtype=np.float64)
+        for i in range(n_iter):
+            all_pred[i] = estimator.fit(X_train, y_train).predict(X_test)
+
+        avg_expected_loss = np.apply_along_axis(lambda x: ((x - y_test) ** 2).mean(), axis=1, arr=all_pred).mean()
+
+        main_predictions = np.mean(all_pred, axis=0)
+
+        avg_bias = np.sum((main_predictions - y_test) ** 2) / y_test.size
+        avg_var = np.sum((main_predictions - all_pred) ** 2) / all_pred.size
+
+        results['names'].append(name)
+        results['loss'].append(avg_expected_loss)
+        results['bias'].append(avg_bias)
+        results['var'].append(avg_var)
+        results['avg'].append((avg_expected_loss + avg_bias + avg_var) / 3)
+
+        if display:
+            print("\nModel:", name)
+            print("Loss: %.4f" % results['loss'][-1])
+            print("Bias: %.4f" % results['bias'][-1])
+            print("Variance: %.4f" % results['var'][-1])
+            print("Average: %.4f" % results['avg'][-1])
+
+    if not plot:
+        return results
+
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(12, 8), sharex='col')
+    ml.utils._plotBar(ax1, results['names'], results['loss'], 'Loss')
+    ml.utils._plotBar(ax2, results['names'], results['bias'], 'Bias')
+    ml.utils._plotBar(ax3, results['names'], results['var'], 'Variance')
+    ml.utils._plotBar(ax4, results['names'], results['avg'], 'Average')
+    fig.suptitle(f"Bias Variance Decomp - {dataset_name}")
     if results_dir:
         plt.savefig(ml.utils.joinPath(results_dir, fig._suptitle.get_text(), ext='.png'))
     plt.show()

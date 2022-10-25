@@ -4,7 +4,6 @@ import logging
 from copy import deepcopy
 
 import numpy as np
-from mlxtend.evaluate import bias_variance_decomp
 from pandas import DataFrame, Series
 from sklearn import ensemble, linear_model, tree
 from sklearn.model_selection import GridSearchCV, TimeSeriesSplit, RandomizedSearchCV
@@ -51,47 +50,6 @@ def searchCV(model: Model, X_train: DataFrame, y_train: Series, display: bool = 
         print('The best score:', cv_results.best_score_)
         print('The best params:', cv_results.best_params_)
     return cv_results
-
-
-def biasVarianceDecomp(models: list | tuple, X_train: DataFrame, y_train: Series, X_test: DataFrame, y_test: Series,
-                       display: bool = True, n_iter: int = 10, random_state: int = None, loss: str = 'mse',
-                       **fit_params) -> dict:
-    """
-
-    :param models:
-    :param X_train:
-    :param y_train:
-    :param X_test:
-    :param y_test:
-    :param display:
-    :param n_iter:
-    :param random_state:
-    :param loss:
-    :param fit_params:
-    :return:
-    """
-    # TODO: documentation
-    logging.info("Conducting bias variance decomposition")
-
-    if isinstance(models, tuple):
-        models = [models]
-
-    results = {}
-    for name, model in models:
-        avg_expected_loss, avg_bias, avg_var = bias_variance_decomp(model, X_train.values, y_train.values,
-                                                                    X_test.values, y_test.values, num_rounds=n_iter,
-                                                                    random_seed=random_state, loss=loss, **fit_params)
-        results[name] = {'avg': (avg_expected_loss + avg_bias + avg_var) / 3,
-                         'loss': avg_expected_loss,
-                         'bias': avg_bias,
-                         'var': avg_var}
-        if display:
-            print('\n\t', name)
-            print('Average expected loss: %.3f' % avg_expected_loss)
-            print('Average bias: %.3f' % avg_bias)
-            print('Average variane: %.3f' % avg_var)
-            print('Average Results: %.3f' % results[name]['avg'])
-    return results
 
 
 def getGradientBoostingRegressor(random_state: int = None) -> dict:
@@ -265,12 +223,14 @@ def compareEstimator(estimator, dataset, config):
     ml.estimator.plotPrediction(y_train, y_test, y_preds, ylabel="Close ($USD)", dataset_name=dataset.name,
                                 results_dir=results_dir)
 
-    results = biasVarianceDecomp(models, X_train, y_train, X_test, y_test, loss='mse')
-    if 'Recorded Best' not in results or results['Grid Searched']['avg'] < results['Recorded Best']['avg']:
-        logging.info("Updating best saved model")
-        estimator.update(model=cv_results.best_estimator_)
-        estimator.model.fit(X_train, y_train)
-        estimator.save()
+    results = ml.estimator.biasVarianceDecomp(models, X_train, y_train, X_test, y_test, n_iter=10,
+                                              dataset_name=dataset.name, results_dir=results_dir)
+
+    index_min = np.argmin(results['avg'])
+    logging.info(f"Best model is '{results['names'][index_min]}'")
+    estimator.update(model=models[index_min][1])
+    estimator.model.fit(X_train, y_train)
+    estimator.save()
 
 
 def compareClassifier(classifier, dataset, config):
@@ -300,12 +260,14 @@ def compareClassifier(classifier, dataset, config):
     ml.classifier.resultAnalysis(y_test, y_preds, dataset_name=dataset.name, results_dir=results_dir)
     ml.classifier.plotPrediction(y_test, y_preds, dataset_name=dataset.name, results_dir=results_dir)
 
-    results = biasVarianceDecomp(models, X_train, y_train, X_test, y_test, loss='0-1_loss')
-    if 'Recorded Best' not in results or results['Grid Searched']['avg'] < results['Recorded Best']['avg']:
-        logging.info("Updating best saved model")
-        classifier.update(model=cv_results.best_estimator_)
-        classifier.model.fit(X_train, y_train)
-        classifier.save()
+    results = ml.classifier.biasVarianceDecomp(models, X_train, y_train, X_test, y_test, n_iter=10,
+                                               dataset_name=dataset.name, results_dir=results_dir)
+
+    index_min = np.argmin(results['avg'])
+    logging.info(f"Best model is '{results['names'][index_min]}'")
+    classifier.update(model=models[index_min][1])
+    classifier.model.fit(X_train, y_train)
+    classifier.save()
 
 
 def compareParams(dataset: Dataset, config: Config) -> None:
