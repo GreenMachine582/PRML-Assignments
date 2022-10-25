@@ -129,26 +129,6 @@ class Model(object):
         path_ = utils.makePath(self.dir_, self.FOLDER_NAME)
         return save(path_, self.name, self.model, ext=self.EXT)
 
-    def createModel(self, params: dict = None, inplace: bool = True) -> Any:
-        """
-
-        :param params:
-        :param inplace: If True, modifies the model in place, should be a bool
-        :return: None
-        """
-        # TODO: Add documentation
-        logging.info("Creating model")
-        if params is None:
-            params = self.best_params
-
-        if isinstance(self.base, Pipeline):
-            params = self.getPipelineKeys(params)
-
-        model = deepcopy(self.base).set_params(**params)
-        if inplace:
-            self.model = model
-        return model
-
     def getPipelineKeys(self, param_grid: dict | list) -> dict | list:
         """
 
