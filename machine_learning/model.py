@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import os
-from copy import deepcopy
 from typing import Any
 
 import numpy as np
@@ -11,18 +10,18 @@ from matplotlib import rcParams
 from numpy import ndarray
 from pandas import Series
 from sklearn.inspection import permutation_importance
-from sklearn.pipeline import Pipeline
 
 from machine_learning import classifier, estimator, utils
 
 
-def load(dir_: str, name: str, ext: str = '.model') -> Any:
+def load(dir_: str, name: str, ext: str = '.model', **kwargs) -> Any:
     """
     Load the model from a model file.
 
     :param dir_: Directory path of file, should be a str
     :param name: Name of file, should be a str
     :param ext: File extension, should be a str
+    :key errors: If 'ignore', suppress errors, should be str
     :return: model - Any
     """
     if not os.path.exists(dir_):
@@ -30,7 +29,7 @@ def load(dir_: str, name: str, ext: str = '.model') -> Any:
         return None
 
     name = utils.joinPath(name, ext=ext)
-    model = utils.load(dir_, name)
+    model = utils.load(dir_, name, **kwargs)
     if model is None:
         logging.warning(f"Failed to load model '{name}'")
     return model
@@ -103,14 +102,15 @@ class Model(object):
         utils.update(self, kwargs)
         logging.info(f"Updated model '{self.name}' attributes")
 
-    def load(self, inplace: bool = True) -> Any:
+    def load(self, inplace: bool = True, **kwargs) -> Any:
         """
         Load the model attribute.
 
         :param inplace: If True, modifies the model in place, should be a bool
+        :key errors: If 'ignore', suppress errors, should be str
         :return: model - Any
         """
-        model = load(utils.joinPath(self.dir_, self.FOLDER_NAME), self.name, ext=self.EXT)
+        model = load(utils.joinPath(self.dir_, self.FOLDER_NAME), self.name, ext=self.EXT, **kwargs)
         if model is None:
             return None
         if inplace:

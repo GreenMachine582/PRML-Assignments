@@ -74,6 +74,18 @@ def update(obj: object, kwargs: dict) -> object:
     return obj
 
 
+def convertToList(array_: tuple | dict | list, name: str):
+    # TODO: documentation
+    if isinstance(array_, tuple):
+        return list(array_)
+    elif isinstance(array_, dict):
+        return list(array_.items())
+    elif isinstance(array_, list):
+        return array_
+    else:
+        raise TypeError(f"'{name}': Expected type 'tuple | dict | list', got {type(array_).__name__} instead")
+
+
 def load(dir_: str, name: str, errors: str = 'raise') -> Any:
     """
     Load the data with appropriate method. Pickle will deserialise the

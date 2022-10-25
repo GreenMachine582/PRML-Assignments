@@ -80,21 +80,23 @@ def compareBest(dataset: Dataset, config: Config) -> None:
             if choice == 0:
                 return
             elif choice == 1:
-                model_config = compare_params.getGradientBoostingRegressor(config.random_state)
+                model_config = compare_params.getGradientBoostingRegressor()
             elif choice == 2:
-                model_config = compare_params.getRandomForestRegressor(config.random_state)
+                model_config = compare_params.getRandomForestRegressor()
             elif choice == 3:
-                model_config = compare_params.getDecisionTreeRegressor(config.random_state)
+                model_config = compare_params.getDecisionTreeRegressor()
             elif choice == 4:
-                model_config = compare_params.getRidgeClassifier(config.random_state)
+                model_config = compare_params.getRidgeClassifier()
             else:
                 print("\nPlease enter a valid choice!")
 
         if model_config is not None:
             model = Model(config.model, **model_config)
             model.base = Pipeline([('scaler', StandardScaler()), (model.name, model.base)])
-            path_, exist = ml.utils.checkPath(config.dir_, model.FOLDER_NAME, model.name, ext=model.EXT)
-            model.createModel() if not exist else model.load()  # loads best model
+
+            if model.load(errors='ignore') is None:
+                logging.info("Try going back too select the compare and save best models option.")
+                continue
 
             if model.type_ == 'estimator':
                 compareEstimator(model, deepcopy(dataset), config)

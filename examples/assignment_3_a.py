@@ -38,8 +38,8 @@ def main(dir_: str) -> None:
         1 - Process Dataset (Includes EDA)
         2 - Compare Estimators
         3 - Compare Classifiers
-        4 - Compare Params
-        5 - Compare Best
+        4 - Compare and save best models (Includes SearchCV)
+        5 - Explore saved best models
         """)
         choice = input("Which option number: ")
         try:

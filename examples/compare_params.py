@@ -60,24 +60,16 @@ def getGradientBoostingRegressor(random_state: int = None) -> dict:
     :return: estimator - dict[str: Any]
     """
     # TODO: documentation
-    best_params = {'criterion': 'squared_error',
-                   'learning_rate': 0.112,
-                   'max_depth': 5,
-                   'n_estimators': 400,
-                   'random_state': 1,
-                   'subsample': 0.5}
     grid_params = {'criterion': ['friedman_mse', 'squared_error'],
                    'learning_rate': [0.002 * (i + 1) for i in range(100)],
                    'max_depth': range(5, 101, 5),
                    'n_estimators': range(50, 801, 50),
                    'random_state': [random_state],
                    'subsample': [0.1 * (i + 1) for i in range(10)]}
-
     estimator = {'name': 'GBR',
                  'fullname': "Gradient Boosting Regressor",
                  'type_': 'estimator',
                  'base': ensemble.GradientBoostingRegressor(),
-                 'best_params': best_params,
                  'grid_params': grid_params}
     logging.info(f"Got '{estimator['name']}' attributes")
     return estimator
@@ -91,15 +83,9 @@ def getRandomForestRegressor(random_state: int = None) -> dict:
     :return: estimator - dict[str: Any]
     """
     # TODO: documentation
-    best_params = {'criterion': 'squared_error',
-                   'max_depth': 66,
-                   'max_features': 0.5,
-                   'min_samples_split': 3,
-                   'n_estimators': 50,
-                   'random_state': 1}
     grid_params = {'criterion': ['squared_error', 'absolute_error', 'poisson'],
                    'max_depth': [2 * (i + 1) for i in range(40)],
-                   'max_features': ['sqrt', 'log2', 2, 1, 0.5],
+                   'max_features': ['sqrt', 'log2', None, 2, 1, 0.5],
                    'min_samples_split': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1., 2, 3, 4],
                    'n_estimators': [50 * (i + 1) for i in range(20)],
                    'random_state': [random_state]}
@@ -108,7 +94,6 @@ def getRandomForestRegressor(random_state: int = None) -> dict:
                  'fullname': "Random Forest Regressor",
                  'type_': 'estimator',
                  'base': ensemble.RandomForestRegressor(),
-                 'best_params': best_params,
                  'grid_params': grid_params}
     logging.info(f"Got '{estimator['name']}' attributes")
     return estimator
@@ -122,35 +107,19 @@ def getDecisionTreeRegressor(random_state: int = None):
     :return: estimator - dict[str: Any]
     """
     # TODO: documentation
-    best_params = {'splitter': 'best',
-                   'random_state': 0,
-                   'min_weight_fraction_leaf': 0.0,
-                   'min_samples_split': 2,
-                   'min_samples_leaf': 2,
-                   'min_impurity_decrease': 0.0,
-                   'max_leaf_nodes': 80,
-                   'max_features': 'log2',
-                   'max_depth': 11,
-                   'criterion': 'friedman_mse',
-                   'ccp_alpha': 0.0}
-
     grid_params = {'criterion': ['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
-                   'splitter': ['best', 'random'],
-                   'max_depth': [1, 3, 5, 7, 9, 11, 12],
-                   'min_samples_split': [2],
-                   'min_samples_leaf': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                   'min_weight_fraction_leaf': [0.0],
-                   'max_features': ['auto', 'log2', 'sqrt', None],
+                   'max_depth': [None, *[2 * (i + 1) for i in range(150)]],
+                   'max_features': ['sqrt', 'log2', None, 2, 1, 0.5],
+                   'max_leaf_nodes': [None, *[2 * (i + 1) for i in range(50)]],
+                   'min_samples_split': [1 * (i + 1) for i in range(20)],
+                   'min_samples_leaf': [1 * (i + 1) for i in range(5)],
                    'random_state': [random_state],
-                   'max_leaf_nodes': [None, 10, 20, 30, 40, 50, 60, 70, 80, 90],
-                   'min_impurity_decrease': [0.0],
-                   'ccp_alpha': [0.0]}
+                   'splitter': ['best', 'random']}
 
     estimator = {'name': 'DTR',
                  'fullname': "Decision Tree Regressor",
                  'type_': 'estimator',
                  'base': tree.DecisionTreeRegressor(),
-                 'best_params': best_params,
                  'grid_params': grid_params}
     logging.info(f"Got '{estimator['name']}' attributes")
     return estimator
@@ -164,33 +133,17 @@ def getRidgeClassifier(random_state: int = None):
     :return: model - dict[str: Any]
     """
     # TODO: documentation
-    best_params = {'tol': 0.001,
-                   'solver': 'auto',
-                   'random_state': 2,
-                   'positive': False,
-                   'normalize': 'deprecated',
-                   'max_iter': 3100,
-                   'fit_intercept': False,
-                   'copy_X': False,
-                   'class_weight': None,
-                   'alpha': 1.04}
-
     grid_params = [{'alpha': [0.02 * (i + 1) for i in range(100)],
                     'class_weight': ['balanced', None],
                     'copy_X': [True, False],
                     'fit_intercept': [True, False],
-                    'max_iter': [None, *range(2500, 4001, 50)],
-                    'normalize': ['deprecated'],
-                    'positive': [False, True],
+                    'max_iter': [None, *[50 * (i + 1) for i in range(20)]],
                     'random_state': [random_state],
-                    'solver': ['auto'],
-                    'tol': [0.001]}]
-
+                    'solver': ['svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag', 'saga']}]
     model = {'name': 'RC',
              'fullname': "Ridge Classifier",
              'type_': 'classifier',
              'base': linear_model.RidgeClassifier(),
-             'best_params': best_params,
              'grid_params': grid_params}
 
     logging.info(f"Got '{model['name']}' attributes")
@@ -303,13 +256,13 @@ def compareParams(dataset: Dataset, config: Config) -> None:
             if choice == 0:
                 return
             elif choice == 1:
-                model_config = getGradientBoostingRegressor(config.random_state)
+                model_config = getGradientBoostingRegressor()
             elif choice == 2:
-                model_config = getRandomForestRegressor(config.random_state)
+                model_config = getRandomForestRegressor()
             elif choice == 3:
-                model_config = getDecisionTreeRegressor(config.random_state)
+                model_config = getDecisionTreeRegressor()
             elif choice == 4:
-                model_config = getRidgeClassifier(config.random_state)
+                model_config = getRidgeClassifier()
             else:
                 print("\nPlease enter a valid choice!")
 
