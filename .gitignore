@@ -3,8 +3,8 @@ log.txt
 .idea
 venv
 configs/
-datasets/
-!datasets/BTC-USD.csv
+datasets/BTC-USD-pre-processed.csv
+datasets/Fashion-MNIST.csv
 models/
 results/
 examples/__pycache__/
