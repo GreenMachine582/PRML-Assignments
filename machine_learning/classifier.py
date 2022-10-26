@@ -166,7 +166,7 @@ def biasVarianceDecomp(model: dict | list | tuple, X_train: DataFrame, y_train: 
     logging.info("Conducting bias variance decomposition")
 
     models = ml.utils.convertToList(model, 'model')
-    results = {'names': [], 'loss': [], 'bias': [], 'var': [], 'avg': []}
+    results = {'names': [], 'loss': [], 'bias': [], 'var': [], 'diff': []}
 
     for name, classifier in models:
         all_pred = np.zeros((n_iter, y_test.shape[0]), dtype=np.int64)
@@ -191,14 +191,14 @@ def biasVarianceDecomp(model: dict | list | tuple, X_train: DataFrame, y_train: 
         results['loss'].append(avg_expected_loss)
         results['bias'].append(avg_bias)
         results['var'].append(avg_var)
-        results['avg'].append((avg_expected_loss + avg_bias + avg_var) / 3)
+        results['diff'].append(abs(avg_bias - avg_var))
 
         if display:
             print("\nModel:", name)
             print("Loss: %.4f" % results['loss'][-1])
             print("Bias: %.4f" % results['bias'][-1])
             print("Variance: %.4f" % results['var'][-1])
-            print("Average: %.4f" % results['avg'][-1])
+            print("Bias-Var: %.4f" % results['diff'][-1])
 
     if not plot:
         return results
@@ -207,7 +207,7 @@ def biasVarianceDecomp(model: dict | list | tuple, X_train: DataFrame, y_train: 
     ml.utils._plotBar(ax1, results['names'], results['loss'], 'Loss')
     ml.utils._plotBar(ax2, results['names'], results['bias'], 'Bias')
     ml.utils._plotBar(ax3, results['names'], results['var'], 'Variance')
-    ml.utils._plotBar(ax4, results['names'], results['avg'], 'Average')
+    ml.utils._plotBar(ax4, results['names'], results['diff'], 'Bias-Var')
     fig.suptitle(f"Bias Variance Decomp - {dataset_name}")
     if results_dir:
         plt.savefig(ml.utils.joinPath(results_dir, fig._suptitle.get_text(), ext='.png'))

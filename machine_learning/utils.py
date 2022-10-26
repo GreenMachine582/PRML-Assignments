@@ -77,7 +77,7 @@ def update(obj: object, kwargs: dict) -> object:
 def convertToList(array_: tuple | dict | list, name: str):
     # TODO: documentation
     if isinstance(array_, tuple):
-        return list(array_)
+        return [array_]
     elif isinstance(array_, dict):
         return list(array_.items())
     elif isinstance(array_, list):

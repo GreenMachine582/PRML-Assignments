@@ -225,7 +225,7 @@ class Model(object):
             if results_dir:
                 plt.savefig(utils.joinPath(results_dir, fig._suptitle.get_text(), ext='.png'))
         else:
-            fig, ax = plt.subplots(figsize=(10, 10))
+            fig, ax = plt.subplots(figsize=(7, 5))
             result = permutation_importance(self.model, X_test, y_test, n_repeats=10, n_jobs=-1)
             sorted_idx = result.importances_mean.argsort()
             ax.boxplot(result.importances[sorted_idx].T, vert=False, labels=np.array(feature_names)[sorted_idx])

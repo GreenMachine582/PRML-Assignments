@@ -19,7 +19,6 @@ def compareEstimator(estimator, dataset, config):
     X_train, X_test, y_train, y_test = dataset.split(shuffle=False)
 
     logging.info("Fitting and predicting")
-    estimator.model.fit(X_train, y_train)
     y_pred = np.clip(estimator.model.predict(X_test), 0, None)
 
     estimator.resultAnalysis(y_test, y_pred, plot=False, dataset_name=f"{dataset.name} Recorded Best")
@@ -39,7 +38,6 @@ def compareClassifier(classifier, dataset, config):
     X_train, X_test, y_train, y_test = dataset.split(shuffle=False)
 
     logging.info("Fitting and predicting")
-    classifier.model.fit(X_train, y_train)
     y_pred = classifier.model.predict(X_test)
 
     classifier.resultAnalysis(y_test, y_pred, plot=False, dataset_name=f"{dataset.name} Recorded Best")

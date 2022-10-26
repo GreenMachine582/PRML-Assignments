@@ -5,6 +5,7 @@ venv
 configs/
 datasets/
 !datasets/BTC-USD.csv
+models/
 results/
 examples/__pycache__/
 machine_learning/__pycache__/

@@ -161,16 +161,18 @@ def compareEstimator(estimator, dataset, config):
     models = [('Default', deepcopy(estimator.base)),
               ('Grid Searched', cv_results.best_estimator_)]
 
-    path_, exist = ml.utils.checkPath(config.dir_, estimator.FOLDER_NAME, estimator.name, ext=estimator.EXT)
-    if exist:
-        models.append(('Recorded Best', estimator.load(inplace=False)))
-
     logging.info("Fitting and predicting")
     y_preds = []
     for name, model in models:
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
         y_preds.append((name, np.clip(y_pred, 0, None)))
+
+    path_, exist = ml.utils.checkPath(config.dir_, estimator.FOLDER_NAME, estimator.name, ext=estimator.EXT)
+    if exist:
+        models.append(('Recorded Best', estimator.load(inplace=False)))
+        y_pred = models[-1][1].predict(X_test)
+        y_preds.append((models[-1][0], np.clip(y_pred, 0, None)))
 
     ml.estimator.resultAnalysis(y_test, y_preds, dataset_name=dataset.name, results_dir=results_dir)
     ml.estimator.plotPrediction(y_train, y_test, y_preds, ylabel="Close ($USD)", dataset_name=dataset.name,
@@ -179,7 +181,7 @@ def compareEstimator(estimator, dataset, config):
     results = ml.estimator.biasVarianceDecomp(models, X_train, y_train, X_test, y_test, n_iter=10,
                                               dataset_name=dataset.name, results_dir=results_dir)
 
-    index_min = np.argmin(results['avg'])
+    index_min = np.argmin(results['loss'])
     logging.info(f"Best model is '{results['names'][index_min]}'")
     estimator.update(model=models[index_min][1])
     estimator.model.fit(X_train, y_train)
